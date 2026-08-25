@@ -1107,8 +1107,8 @@
           formData.append("target_language", targetLanguageInput.value);
 
           try {
-            // Gửi trực tiếp tới Ngrok với FormData (CORS Simple Request - Không có Header lạ, bỏ qua Preflight OPTIONS)
-            const response = await fetch("https://uncapped-moneywise-wages.ngrok-free.dev/api/v1/translate-images", {
+            // Gửi trực tiếp tới Cloudflare Tunnel (Không màn hình cảnh báo, không chặn CORS Preflight)
+            const response = await fetch("https://reasoning-agriculture-observed-remind.trycloudflare.com/api/v1/translate-images", {
               method: "POST",
               body: formData
             });
@@ -1121,8 +1121,8 @@
               payload = JSON.parse(textData);
             } catch (e) {
               console.error("Lỗi Parse JSON. Dữ liệu thực tế bị chặn:", textData);
-              if (textData.includes("ngrok") || textData.toLowerCase().includes("html") || textData.toLowerCase().includes("doctype")) {
-                throw new Error("Ngrok hoặc Vercel đã chặn luồng dữ liệu (Trả về trang HTML cảnh báo thay vì JSON).");
+              if (textData.toLowerCase().includes("html") || textData.toLowerCase().includes("doctype")) {
+                throw new Error("Máy chủ hoặc Cloudflare đã trả về trang HTML thay vì dữ liệu JSON.");
               } else {
                 throw new Error(`Máy chủ trả về dữ liệu không hợp lệ (Mã HTTP: ${response.status}).`);
               }
@@ -1177,10 +1177,10 @@
             appendResultToDOM({ status: "error", file_name: file.name, message: errText });
           }
 
-          // --- TĂNG THỜI GIAN NGHỈ LÊN 3 GIÂY ĐỂ VERCEL VÀ NGROK KỊP XẢ BĂNG THÔNG ---
+          // --- NGHỈ 2 GIÂY ĐỂ HỒI TOKEN VÀ XẢ BĂNG THÔNG ---
           if (i < totalFiles - 1) {
-            progressText.textContent = `Đang nghỉ 3 giây để nhường đường truyền cho ảnh ${i + 2}...`;
-            await sleep(3000);
+            progressText.textContent = `Đang nghỉ 2 giây để nhường đường truyền cho ảnh ${i + 2}...`;
+            await sleep(2000);
           }
         } // Hết vòng lặp
 
@@ -1212,11 +1212,8 @@
         historyMeta.textContent = "Đang lấy dữ liệu...";
         historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Đang tải...</td></tr>`;
 
-        const response = await fetch("/api/v1/translations?page=1&limit=20", {
-          method: "GET",
-          headers: {
-            "ngrok-skip-browser-warning": "true"
-          }
+        const response = await fetch("https://reasoning-agriculture-observed-remind.trycloudflare.com/api/v1/translations?page=1&limit=20", {
+          method: "GET"
         });
         const payload = await response.json().catch(() => ({}));
 

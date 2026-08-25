@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "https://uncapped-moneywise-wages.ngrok-free.dev/api/:match*"
+      "destination": "https://reasoning-agriculture-observed-remind.trycloudflare.com/api/:match*"
     },
     {
       "source": "/",
