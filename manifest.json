@@ -1,0 +1,11 @@
+﻿{
+  "name": "Manga Translator",
+  "short_name": "MangaTrans",
+  "description": "Hệ thống API bóc tách và dịch ảnh Manga/Manhwa tự động",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#22c55e",
+  "lang": "vi",
+  "icons": []
+}
