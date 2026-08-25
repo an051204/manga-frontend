@@ -927,9 +927,144 @@
       return Number.isNaN(date.getTime()) ? value : date.toLocaleString("vi-VN");
     };
 
-    const API_BASE_URL = "";
+    let renderedCardIndex = 0;
 
-    // XỬ LÝ FORM UPLOAD HÀNG LOẠT
+    // VẼ KẾT QUẢ TỪNG ẢNH RA GIAO DIỆN NGAY KHI XONG
+    const appendResultToDOM = (res) => {
+      const isError = res.status === "error" || (res.data && res.data.translated_text && res.data.translated_text.includes("[LỖI"));
+      const headerClass = isError ? "border-danger" : "border-success";
+      const badgeClass = isError ? "bg-danger" : "bg-success";
+      const currentIndex = renderedCardIndex++;
+
+      const wrapper = document.createElement("div");
+
+      if (res.status === "error") {
+        wrapper.innerHTML = `
+          <div class="result-card ${headerClass}">
+            <div class="result-card-header">
+              <span class="fw-bold text-danger">❌ ${escapeHtml(res.file_name)}</span>
+            </div>
+            <div class="result-card-body text-danger">
+              ${escapeHtml(res.message || "Lỗi xử lý ảnh.")}
+            </div>
+          </div>
+        `;
+        resultsContainer.appendChild(wrapper.firstElementChild);
+        return;
+      }
+
+      const formatLabel = res.data?.comic_format ? res.data.comic_format.toUpperCase() : "AUTO";
+      const downloadFilename = `translated_${(res.file_name || "image").replace(/\.[^.]+$/, '')}.png`;
+
+      wrapper.innerHTML = `
+        <div class="result-card ${headerClass}">
+          <div class="result-card-header">
+            <span class="fw-bold text-info">📄 ${escapeHtml(res.file_name)}</span>
+            <div>
+              <span class="badge ${badgeClass}">${escapeHtml(res.data?.detected_source_language || "Auto")}</span>
+              <span class="badge bg-secondary ms-1">${escapeHtml(formatLabel)}</span>
+            </div>
+          </div>
+          <div class="result-card-body">
+            ${res.data?.translated_image_base64 ? `
+            <div class="p-3 mb-4 rounded-3" style="background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.3);">
+              <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+                <span class="fw-bold text-success" style="font-size: 1rem;">
+                  🖼️ ẢNH THÀNH PHẨM ĐÃ DỊCH
+                </span>
+                <span class="badge bg-info text-dark">PNG Đã Sẵn Sàng</span>
+              </div>
+
+              <div class="text-center py-2 position-relative" style="background: rgba(0,0,0,0.3); border-radius: 8px;">
+                <img id="renderedImg_${currentIndex}"
+                     src="data:image/png;base64,${res.data.translated_image_base64}" 
+                     alt="Ảnh đã dịch - ${escapeHtml(res.file_name)}"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 480px; object-fit: contain; cursor: pointer;"
+                     onclick="openImageModal('data:image/png;base64,${res.data.translated_image_base64}', '${escapeHtml(res.file_name)}', '${downloadFilename}')"
+                     title="Click để phóng to ảnh" />
+              </div>
+
+              <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                <a class="btn btn-accent px-4 py-2 fw-bold" 
+                   href="data:image/png;base64,${res.data.translated_image_base64}" 
+                   download="${downloadFilename}"
+                   style="text-decoration: none; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
+                  📥 TẢI ẢNH ĐÃ DỊCH VỀ MÁY (.PNG)
+                </a>
+                <button type="button" class="btn btn-outline-info btn-sm px-3"
+                        onclick="openImageModal('data:image/png;base64,${res.data.translated_image_base64}', '${escapeHtml(res.file_name)}', '${downloadFilename}')">
+                  🔍 Phóng to
+                </button>
+              </div>
+            </div>
+            ` : `
+            <div class="alert alert-warning py-2 mb-3 small">
+              ⚠️ Chưa có ảnh render cho file này. Bản dịch dạng văn bản ở bên dưới:
+            </div>
+            `}
+
+            <div class="row">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <h6 class="text-muted small border-bottom border-secondary pb-1">Văn bản gốc (OCR)</h6>
+                <pre>${escapeHtml(res.data?.original_ocr_text || "")}</pre>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted small border-bottom border-secondary pb-1">Bản dịch</h6>
+                <pre style="color: #4ade80;">${escapeHtml(res.data?.translated_text || "")}</pre>
+              </div>
+            </div>
+            
+            ${res.data?.bubbles && res.data.bubbles.length > 0 ? `
+            <div class="mt-3">
+              <h6 class="text-muted small border-bottom border-secondary pb-1">Chi tiết ${res.data.bubbles.length} Bong bóng / Khối văn bản</h6>
+              <div class="table-responsive">
+                <table class="table table-sm table-dark table-striped mt-2">
+                  <thead><tr><th>Box [x,y,w,h]</th><th>Gốc</th><th>Dịch</th></tr></thead>
+                  <tbody>
+                    ${res.data.bubbles.map(b => `
+                      <tr>
+                        <td class="text-muted" style="font-size: 0.75rem;">[${b.bbox.xmin},${b.bbox.ymin},${b.bbox.xmax - b.bbox.xmin},${b.bbox.ymax - b.bbox.ymin}]</td>
+                        <td style="font-size: 0.85rem;">${escapeHtml(b.original_text)}</td>
+                        <td style="font-size: 0.85rem; color:#4ade80;">${escapeHtml(b.translated_text)}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      resultsContainer.appendChild(wrapper.firstElementChild);
+    };
+
+    // VẼ NÚT TẢI TẤT CẢ
+    const renderBatchDownloadButton = (translatedResults) => {
+      const batchSlot = document.getElementById("batchDownloadAllSlot");
+      batchSlot.innerHTML = "";
+
+      const downloadAllBtn = document.createElement("button");
+      downloadAllBtn.className = "btn btn-sm btn-accent";
+      downloadAllBtn.innerHTML = `📥 Tải tất cả ${translatedResults.length} ảnh đã dịch`;
+      downloadAllBtn.onclick = () => {
+        translatedResults.forEach((r, idx) => {
+          setTimeout(() => {
+            const a = document.createElement("a");
+            a.href = "data:image/png;base64," + r.data.translated_image_base64;
+            a.download = "translated_" + r.file_name.replace(/\.[^.]+$/, "") + ".png";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }, idx * 350);
+        });
+      };
+      batchSlot.appendChild(downloadAllBtn);
+    };
+
+    // XỬ LÝ FORM UPLOAD HÀNG LOẠT (TUẦN TỰ TỪNG ẢNH TRÁNH TIMEOUT 502)
     translateForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -939,189 +1074,86 @@
         return;
       }
 
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append("images", files[i]);
-      }
-      formData.append("source_language", sourceLanguageInput.value);
-      if (ocrEngineModeInput.value) {
-        formData.append("ocr_engine_mode", ocrEngineModeInput.value);
-      }
-      formData.append("target_language", targetLanguageInput.value);
-
       try {
         clearUploadError();
         setUploadLoading(true);
         resultsContainer.innerHTML = "";
+        renderedCardIndex = 0;
         batchSummaryBadge.textContent = `Tổng: ${files.length} ảnh`;
         document.getElementById("batchDownloadAllSlot").innerHTML = "";
 
-        progressText.textContent = `Đang tải lên và chờ API phản hồi (có thể mất 1-2 phút)...`;
-        progressBar.style.width = "50%";
-        progressPercent.textContent = "50%";
+        const totalFiles = files.length;
+        let successCount = 0;
+        let failedCount = 0;
+        const allTranslatedResults = [];
 
-        const response = await fetch("/api/v1/translate-images", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "ngrok-skip-browser-warning": "true"
+        // Xử lý lần lượt từng ảnh một (mỗi ảnh 1 request riêng biệt tránh timeout Vercel)
+        for (let i = 0; i < totalFiles; i++) {
+          const file = files[i];
+          const progressMessage = `Đang xử lý ảnh ${i + 1}/${totalFiles} (${file.name})...`;
+          progressText.textContent = progressMessage;
+
+          const percent = Math.round((i / totalFiles) * 100);
+          progressBar.style.width = `${percent}%`;
+          progressPercent.textContent = `${percent}%`;
+
+          const formData = new FormData();
+          formData.append("images", file);
+          formData.append("source_language", sourceLanguageInput.value);
+          if (ocrEngineModeInput.value) {
+            formData.append("ocr_engine_mode", ocrEngineModeInput.value);
           }
-        });
+          formData.append("target_language", targetLanguageInput.value);
 
-        const payload = await response.json().catch(() => ({}));
+          try {
+            const response = await fetch("/api/v1/translate-images", {
+              method: "POST",
+              body: formData,
+              headers: {
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
 
-        if (!response.ok || payload.status === "error") {
-          const message = payload.message || "Dịch thuật thất bại do lỗi Server hoặc Rate Limit.";
-          showUploadError(message);
-          resultsContainer.innerHTML = `<div class="alert alert-danger">${escapeHtml(message)}</div>`;
-          return;
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok || payload.status === "error") {
+              failedCount++;
+              const errorMessage = payload.message || "Lỗi khi dịch ảnh này.";
+              appendResultToDOM({ status: "error", file_name: file.name, message: errorMessage });
+            } else if (payload.data && payload.data.length > 0) {
+              successCount++;
+              const resultData = payload.data[0];
+              if (resultData.status === "success" && resultData.data && resultData.data.translated_image_base64) {
+                allTranslatedResults.push(resultData);
+              }
+              appendResultToDOM(resultData);
+            } else {
+              failedCount++;
+              appendResultToDOM({ status: "error", file_name: file.name, message: "Không có dữ liệu trả về." });
+            }
+          } catch (err) {
+            failedCount++;
+            appendResultToDOM({ status: "error", file_name: file.name, message: "Lỗi kết nối máy chủ." });
+          }
         }
 
+        // Cập nhật thanh tiến trình hoàn tất
         progressBar.style.width = "100%";
         progressPercent.textContent = "100%";
-        progressText.textContent = `Hoàn thành ${payload.success_count}/${payload.total} ảnh`;
+        progressText.textContent = `Hoàn thành ${successCount}/${totalFiles} ảnh`;
 
-        // Thêm duy nhất 1 nút "Tải tất cả" nếu có nhiều ảnh đã dịch
-        const translatedResults = (payload.data || []).filter(r => r.status === "success" && r.data && r.data.translated_image_base64);
-        const batchSlot = document.getElementById("batchDownloadAllSlot");
-        batchSlot.innerHTML = "";
-
-        if (translatedResults.length > 1) {
-          const downloadAllBtn = document.createElement("button");
-          downloadAllBtn.className = "btn btn-sm btn-accent";
-          downloadAllBtn.innerHTML = `📥 Tải tất cả ${translatedResults.length} ảnh đã dịch`;
-          downloadAllBtn.onclick = () => {
-            translatedResults.forEach((r, idx) => {
-              setTimeout(() => {
-                const a = document.createElement("a");
-                a.href = "data:image/png;base64," + r.data.translated_image_base64;
-                a.download = "translated_" + r.file_name.replace(/\.[^.]+$/, "") + ".png";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-              }, idx * 350);
-            });
-          };
-          batchSlot.appendChild(downloadAllBtn);
+        // Tạo nút "Tải tất cả" nếu có nhiều hơn 1 ảnh thành công
+        if (allTranslatedResults.length > 1) {
+          renderBatchDownloadButton(allTranslatedResults);
         }
 
-        if (payload.failed_count > 0) {
-          uploadStatus.textContent = `Xong (Lỗi ${payload.failed_count} ảnh)`;
+        if (failedCount > 0) {
+          uploadStatus.textContent = `Xong (Lỗi ${failedCount} ảnh)`;
           uploadStatus.className = "text-danger fw-bold";
         }
 
-        const results = payload.data || [];
-        if (results.length === 0) {
-          resultsContainer.innerHTML = `<div class="alert alert-info">Không có dữ liệu trả về từ server.</div>`;
-          return;
-        }
-
-        resultsContainer.innerHTML = results.map((res, index) => {
-          const isError = res.status === "error" || (res.data && res.data.translated_text && res.data.translated_text.includes("[LỖI"));
-          const headerClass = isError ? "border-danger" : "border-success";
-          const badgeClass = isError ? "bg-danger" : "bg-success";
-
-          if (res.status === "error") {
-            return `
-              <div class="result-card ${headerClass}">
-                <div class="result-card-header">
-                  <span class="fw-bold text-danger">❌ ${escapeHtml(res.file_name)}</span>
-                </div>
-                <div class="result-card-body text-danger">
-                  ${escapeHtml(res.message)}
-                </div>
-              </div>
-            `;
-          }
-
-          const formatLabel = res.data.comic_format ? res.data.comic_format.toUpperCase() : "AUTO";
-          const downloadFilename = `translated_${res.file_name.replace(/\.[^.]+$/, '')}.png`;
-
-          return `
-            <div class="result-card ${headerClass}">
-              <div class="result-card-header">
-                <span class="fw-bold text-info">📄 ${escapeHtml(res.file_name)}</span>
-                <div>
-                  <span class="badge ${badgeClass}">${escapeHtml(res.data.detected_source_language)}</span>
-                  <span class="badge bg-secondary ms-1">${escapeHtml(formatLabel)}</span>
-                </div>
-              </div>
-              <div class="result-card-body">
-                ${res.data.translated_image_base64 ? `
-                <div class="p-3 mb-4 rounded-3" style="background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.3);">
-                  <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
-                    <span class="fw-bold text-success" style="font-size: 1rem;">
-                      🖼️ ẢNH THÀNH PHẨM ĐÃ DỊCH
-                    </span>
-                    <span class="badge bg-info text-dark">PNG Đã Sẵn Sàng</span>
-                  </div>
-
-                  <div class="text-center py-2 position-relative" style="background: rgba(0,0,0,0.3); border-radius: 8px;">
-                    <img id="renderedImg_${index}"
-                         src="data:image/png;base64,${res.data.translated_image_base64}" 
-                         alt="Ảnh đã dịch - ${escapeHtml(res.file_name)}"
-                         class="img-fluid rounded shadow-sm"
-                         style="max-height: 480px; object-fit: contain; cursor: pointer;"
-                         onclick="openImageModal('data:image/png;base64,${res.data.translated_image_base64}', '${escapeHtml(res.file_name)}', '${downloadFilename}')"
-                         title="Click để phóng to ảnh" />
-                  </div>
-
-                  <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
-                    <a class="btn btn-accent px-4 py-2 fw-bold" 
-                       href="data:image/png;base64,${res.data.translated_image_base64}" 
-                       download="${downloadFilename}"
-                       style="text-decoration: none; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
-                      📥 TẢI ẢNH ĐÃ DỊCH VỀ MÁY (.PNG)
-                    </a>
-                    <button type="button" class="btn btn-outline-info btn-sm px-3"
-                            onclick="openImageModal('data:image/png;base64,${res.data.translated_image_base64}', '${escapeHtml(res.file_name)}', '${downloadFilename}')">
-                      🔍 Phóng to
-                    </button>
-                  </div>
-                </div>
-                ` : `
-                <div class="alert alert-warning py-2 mb-3 small">
-                  ⚠️ Chưa có ảnh render cho file này. Bản dịch dạng văn bản ở bên dưới:
-                </div>
-                `}
-
-                <div class="row">
-                  <div class="col-md-6 mb-3 mb-md-0">
-                    <h6 class="text-muted small border-bottom border-secondary pb-1">Văn bản gốc (OCR)</h6>
-                    <pre>${escapeHtml(res.data.original_ocr_text)}</pre>
-                  </div>
-                  <div class="col-md-6">
-                    <h6 class="text-muted small border-bottom border-secondary pb-1">Bản dịch (LLM)</h6>
-                    <pre style="color: #4ade80;">${escapeHtml(res.data.translated_text)}</pre>
-                  </div>
-                </div>
-                
-                ${res.data.bubbles && res.data.bubbles.length > 0 ? `
-                <div class="mt-3">
-                  <h6 class="text-muted small border-bottom border-secondary pb-1">Chi tiết ${res.data.bubbles.length} Bong bóng (Bubbles)</h6>
-                  <div class="table-responsive">
-                    <table class="table table-sm table-dark table-striped mt-2">
-                      <thead><tr><th>Box [x,y,w,h]</th><th>Gốc</th><th>Dịch</th></tr></thead>
-                      <tbody>
-                        ${res.data.bubbles.map(b => `
-                          <tr>
-                            <td class="text-muted" style="font-size: 0.75rem;">[${b.bbox.xmin},${b.bbox.ymin},${b.bbox.xmax - b.bbox.xmin},${b.bbox.ymax - b.bbox.ymin}]</td>
-                            <td style="font-size: 0.85rem;">${escapeHtml(b.original_text)}</td>
-                            <td style="font-size: 0.85rem; color:#4ade80;">${escapeHtml(b.translated_text)}</td>
-                          </tr>
-                        `).join("")}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                ` : ''}
-              </div>
-            </div>
-          `;
-        }).join("");
-
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Lỗi kết nối đến máy chủ.";
+        const message = error instanceof Error ? error.message : "Lỗi hệ thống.";
         showUploadError(message);
       } finally {
         setTimeout(() => setUploadLoading(false), 1000);
