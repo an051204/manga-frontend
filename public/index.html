@@ -961,9 +961,15 @@
         progressBar.style.width = "50%";
         progressPercent.textContent = "50%";
 
-        const endpoint = `${API_BASE_URL}/api/v1/translate-images${API_BASE_URL ? '?ngrok-skip-browser-warning=69420' : ''}`;
+        const endpoint = `${API_BASE_URL}/api/v1/translate-images`;
+        const headers = {};
+        if (API_BASE_URL) {
+          headers["ngrok-skip-browser-warning"] = "69420";
+        }
+
         const response = await fetch(endpoint, {
           method: "POST",
+          headers,
           body: formData,
         });
 
@@ -1133,8 +1139,12 @@
         historyMeta.textContent = "Đang lấy dữ liệu...";
         historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Đang tải...</td></tr>`;
 
-        const histUrl = `${API_BASE_URL}/api/v1/translations?page=1&limit=20${API_BASE_URL ? '&ngrok-skip-browser-warning=69420' : ''}`;
-        const response = await fetch(histUrl);
+        const histUrl = `${API_BASE_URL}/api/v1/translations?page=1&limit=20`;
+        const headers = {};
+        if (API_BASE_URL) {
+          headers["ngrok-skip-browser-warning"] = "69420";
+        }
+        const response = await fetch(histUrl, { headers });
         const payload = await response.json().catch(() => ({}));
 
         if (response.status === 429) {
