@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="vi">
 
 <head>
@@ -320,7 +320,7 @@
       overflow-y: auto;
     }
 
-    /* Custom scrollbar cho các khu vực scroll */
+    /* Custom scrollbar cho c├íc khu vß╗▒c scroll */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -347,10 +347,10 @@
       <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
         <div>
           <h1 class="display-6 fw-bold mb-2">
-            Hệ thống API bóc tách và dịch ảnh
+            Hß╗ç thß╗æng API b├│c t├ích v├á dß╗ïch ß║únh
           </h1>
           <p class="text-muted mb-0">
-            Hỗ trợ xử lý hàng loạt tối đa 10 ảnh/lần. Tự động nhận diện Manga, Manhwa, Tài liệu.
+            Hß╗ù trß╗ú xß╗¡ l├╜ h├áng loß║ít tß╗æi ─æa 10 ß║únh/lß║ºn. Tß╗▒ ─æß╗Öng nhß║¡n diß╗çn Manga, Manhwa, T├ái liß╗çu.
           </p>
         </div>
         <div class="text-lg-end">
@@ -360,73 +360,73 @@
       </div>
     </section>
 
-    <!-- KHU VỰC CÁC API MENU -->
+    <!-- KHU Vß╗░C C├üC API MENU -->
     <section class="section-card p-3 p-lg-4 mb-4">
       <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
         <div>
-          <h2 class="h5 fw-bold mb-1">Điều hướng nhanh</h2>
+          <h2 class="h5 fw-bold mb-1">─Éiß╗üu h╞░ß╗¢ng nhanh</h2>
           <p class="text-muted mb-0">
-            Mở nhanh tất cả địa chỉ khác của hệ thống API.
+            Mß╗ƒ nhanh tß║Ñt cß║ú ─æß╗ïa chß╗ë kh├íc cß╗ºa hß╗ç thß╗æng API.
           </p>
         </div>
 
-        <label class="visually-hidden" for="routeSelect">Chọn trang</label>
-        <select id="routeSelect" class="form-select route-select d-md-none" title="Chọn một API để xem giải thích.">
-          <option value="">Chọn trang...</option>
-          <option value="/health" title="Kiểm tra server Node.js chính có đang hoạt động hay không.">/health</option>
-          <option value="/api-docs" title="Mở giao diện Swagger UI để thử và xem tài liệu API.">/api-docs</option>
-          <option value="/api-docs.json" title="Xem file OpenAPI JSON của service Node.js.">/api-docs.json</option>
+        <label class="visually-hidden" for="routeSelect">Chß╗ìn trang</label>
+        <select id="routeSelect" class="form-select route-select d-md-none" title="Chß╗ìn mß╗Öt API ─æß╗â xem giß║úi th├¡ch.">
+          <option value="">Chß╗ìn trang...</option>
+          <option value="/health" title="Kiß╗âm tra server Node.js ch├¡nh c├│ ─æang hoß║ít ─æß╗Öng hay kh├┤ng.">/health</option>
+          <option value="/api-docs" title="Mß╗ƒ giao diß╗çn Swagger UI ─æß╗â thß╗¡ v├á xem t├ái liß╗çu API.">/api-docs</option>
+          <option value="/api-docs.json" title="Xem file OpenAPI JSON cß╗ºa service Node.js.">/api-docs.json</option>
           <option value="http://localhost:8001/health"
-            title="Kiểm tra service Python FastAPI có khởi động thành công hay chưa.">Python /health</option>
+            title="Kiß╗âm tra service Python FastAPI c├│ khß╗ƒi ─æß╗Öng th├ánh c├┤ng hay ch╞░a.">Python /health</option>
           <option value="http://localhost:8001/docs"
-            title="Mở Swagger UI tự sinh của Python service để thử endpoint CV.">Python /docs</option>
+            title="Mß╗ƒ Swagger UI tß╗▒ sinh cß╗ºa Python service ─æß╗â thß╗¡ endpoint CV.">Python /docs</option>
           <option value="http://localhost:3000/api/v1/translate-images"
-            title="Endpoint chính để upload ảnh, chạy OCR, sửa lỗi và dịch văn bản.">
+            title="Endpoint ch├¡nh ─æß╗â upload ß║únh, chß║íy OCR, sß╗¡a lß╗ùi v├á dß╗ïch v─ân bß║ún.">
             http://localhost:3000/api/v1/translate-images</option>
           <option value="http://localhost:8001/cv/detect-bubbles"
-            title="Gửi ảnh sang Python CV service để phát hiện các bong bóng thoại.">Python /cv/detect-bubbles</option>
-          <option value="/api/v1/translations" title="Xem lịch sử các lần dịch ảnh đã lưu trong database.">
+            title="Gß╗¡i ß║únh sang Python CV service ─æß╗â ph├ít hiß╗çn c├íc bong b├│ng thoß║íi.">Python /cv/detect-bubbles</option>
+          <option value="/api/v1/translations" title="Xem lß╗ïch sß╗¡ c├íc lß║ºn dß╗ïch ß║únh ─æ├ú l╞░u trong database.">
             /api/v1/translations</option>
         </select>
       </div>
 
       <div class="route-links d-none d-md-flex flex-wrap gap-2 mt-3">
         <a class="btn btn-outline-light btn-sm route-link-btn" href="/health"
-          title="Kiểm tra server Node.js chính có đang hoạt động hay không." data-route-title="/health"
+          title="Kiß╗âm tra server Node.js ch├¡nh c├│ ─æang hoß║ít ─æß╗Öng hay kh├┤ng." data-route-title="/health"
           data-route-path="GET /health"
-          data-route-description="Kiểm tra trạng thái của server Node.js chính. Dùng khi bạn muốn biết backend có đang chạy, có phản hồi hay không trước khi thử các API phức tạp hơn.">/health</a>
+          data-route-description="Kiß╗âm tra trß║íng th├íi cß╗ºa server Node.js ch├¡nh. D├╣ng khi bß║ín muß╗æn biß║┐t backend c├│ ─æang chß║íy, c├│ phß║ún hß╗ôi hay kh├┤ng tr╞░ß╗¢c khi thß╗¡ c├íc API phß╗⌐c tß║íp h╞ín.">/health</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="/api-docs"
-          title="Mở giao diện Swagger UI để thử và xem tài liệu API." data-route-title="/api-docs"
+          title="Mß╗ƒ giao diß╗çn Swagger UI ─æß╗â thß╗¡ v├á xem t├ái liß╗çu API." data-route-title="/api-docs"
           data-route-path="Swagger UI"
-          data-route-description="Mở giao diện tài liệu tương tác để thử API, xem schema request/response, và gửi request ngay trên trình duyệt mà không cần Postman.">/api-docs</a>
+          data-route-description="Mß╗ƒ giao diß╗çn t├ái liß╗çu t╞░╞íng t├íc ─æß╗â thß╗¡ API, xem schema request/response, v├á gß╗¡i request ngay tr├¬n tr├¼nh duyß╗çt m├á kh├┤ng cß║ºn Postman.">/api-docs</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="/api-docs.json"
-          title="Xem file OpenAPI JSON của service Node.js." data-route-title="/api-docs.json"
+          title="Xem file OpenAPI JSON cß╗ºa service Node.js." data-route-title="/api-docs.json"
           data-route-path="OpenAPI JSON"
-          data-route-description="Xem bản đặc tả OpenAPI ở dạng JSON thuần. Tệp này hữu ích nếu bạn muốn import sang công cụ khác hoặc kiểm tra metadata API bằng máy.">/api-docs.json</a>
+          data-route-description="Xem bß║ún ─æß║╖c tß║ú OpenAPI ß╗ƒ dß║íng JSON thuß║ºn. Tß╗çp n├áy hß╗»u ├¡ch nß║┐u bß║ín muß╗æn import sang c├┤ng cß╗Ñ kh├íc hoß║╖c kiß╗âm tra metadata API bß║▒ng m├íy.">/api-docs.json</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="http://localhost:8001/health"
-          title="Kiểm tra FastAPI Python service có chạy và sẵn sàng nhận request hay không."
+          title="Kiß╗âm tra FastAPI Python service c├│ chß║íy v├á sß║╡n s├áng nhß║¡n request hay kh├┤ng."
           data-route-title="Python /health" data-route-path="GET http://localhost:8001/health"
-          data-route-description="Kiểm tra service Python FastAPI có khởi động thành công hay chưa. Đây là điểm kiểm tra nhanh nhất để xác nhận microservice CV đang sẵn sàng xử lý ảnh.">Python
+          data-route-description="Kiß╗âm tra service Python FastAPI c├│ khß╗ƒi ─æß╗Öng th├ánh c├┤ng hay ch╞░a. ─É├óy l├á ─æiß╗âm kiß╗âm tra nhanh nhß║Ñt ─æß╗â x├íc nhß║¡n microservice CV ─æang sß║╡n s├áng xß╗¡ l├╜ ß║únh.">Python
           /health</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="http://localhost:8001/docs"
-          title="Mở Swagger UI tự động sinh từ FastAPI cho Python service." data-route-title="Python /docs"
+          title="Mß╗ƒ Swagger UI tß╗▒ ─æß╗Öng sinh tß╗½ FastAPI cho Python service." data-route-title="Python /docs"
           data-route-path="FastAPI Docs"
-          data-route-description="Mở trang Swagger tự sinh của Python service để xem endpoint `/cv/detect-bubbles`, thử upload ảnh mẫu và đọc phản hồi trực tiếp.">Python
+          data-route-description="Mß╗ƒ trang Swagger tß╗▒ sinh cß╗ºa Python service ─æß╗â xem endpoint `/cv/detect-bubbles`, thß╗¡ upload ß║únh mß║½u v├á ─æß╗ìc phß║ún hß╗ôi trß╗▒c tiß║┐p.">Python
           /docs</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="http://localhost:3000/api/v1/translate-images"
-          title="Endpoint chính để upload ảnh và nhận OCR + bản dịch từ service Node.js."
+          title="Endpoint ch├¡nh ─æß╗â upload ß║únh v├á nhß║¡n OCR + bß║ún dß╗ïch tß╗½ service Node.js."
           data-route-title="http://localhost:3000/api/v1/translate-images"
           data-route-path="POST http://localhost:3000/api/v1/translate-images"
-          data-route-description="Endpoint chính để upload ảnh, chạy OCR, sửa lỗi văn bản và dịch sang ngôn ngữ đích. Đây là luồng xử lý trung tâm của toàn bộ hệ thống.">http://localhost:3000/api/v1/translate-images</a>
+          data-route-description="Endpoint ch├¡nh ─æß╗â upload ß║únh, chß║íy OCR, sß╗¡a lß╗ùi v─ân bß║ún v├á dß╗ïch sang ng├┤n ngß╗» ─æ├¡ch. ─É├óy l├á luß╗ông xß╗¡ l├╜ trung t├óm cß╗ºa to├án bß╗Ö hß╗ç thß╗æng.">http://localhost:3000/api/v1/translate-images</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="http://localhost:8001/cv/detect-bubbles"
-          title="Gửi ảnh sang Python CV service để phát hiện các bong bóng thoại."
+          title="Gß╗¡i ß║únh sang Python CV service ─æß╗â ph├ít hiß╗çn c├íc bong b├│ng thoß║íi."
           data-route-title="Python /cv/detect-bubbles" data-route-path="POST http://localhost:8001/cv/detect-bubbles"
-          data-route-description="Gửi ảnh sang microservice Python để phát hiện các bong bóng thoại. API này phù hợp khi bạn muốn kiểm tra pipeline computer vision trước khi OCR hoặc dịch thuật.">Python
+          data-route-description="Gß╗¡i ß║únh sang microservice Python ─æß╗â ph├ít hiß╗çn c├íc bong b├│ng thoß║íi. API n├áy ph├╣ hß╗úp khi bß║ín muß╗æn kiß╗âm tra pipeline computer vision tr╞░ß╗¢c khi OCR hoß║╖c dß╗ïch thuß║¡t.">Python
           /cv/detect-bubbles</a>
         <a class="btn btn-outline-light btn-sm route-link-btn" href="/api/v1/translations"
-          title="Xem lịch sử các lần upload và dịch ảnh đã được lưu." data-route-title="/api/v1/translations"
+          title="Xem lß╗ïch sß╗¡ c├íc lß║ºn upload v├á dß╗ïch ß║únh ─æ├ú ─æ╞░ß╗úc l╞░u." data-route-title="/api/v1/translations"
           data-route-path="GET /api/v1/translations"
-          data-route-description="Xem lịch sử các lần dịch ảnh đã lưu trong database, bao gồm nội dung OCR gốc, bản dịch, ngôn ngữ đích và thời gian tạo bản ghi.">/api/v1/translations</a>
+          data-route-description="Xem lß╗ïch sß╗¡ c├íc lß║ºn dß╗ïch ß║únh ─æ├ú l╞░u trong database, bao gß╗ôm nß╗Öi dung OCR gß╗æc, bß║ún dß╗ïch, ng├┤n ngß╗» ─æ├¡ch v├á thß╗¥i gian tß║ío bß║ún ghi.">/api/v1/translations</a>
       </div>
 
       <div class="route-preview d-none d-md-flex align-items-start gap-3 mt-3" id="routePreview" aria-live="polite">
@@ -435,63 +435,65 @@
           <div class="fw-bold route-preview__title" id="routePreviewTitle">/health</div>
           <div class="small route-preview__path" id="routePreviewPath">GET /health</div>
           <div class="mt-2 route-preview__body" id="routePreviewDescription">
-            Kiểm tra trạng thái của server Node.js chính. Dùng khi bạn muốn biết backend có đang chạy, có phản hồi hay
-            không trước khi thử các API phức tạp hơn.
+            Kiß╗âm tra trß║íng th├íi cß╗ºa server Node.js ch├¡nh. D├╣ng khi bß║ín muß╗æn biß║┐t backend c├│ ─æang chß║íy, c├│ phß║ún hß╗ôi hay
+            kh├┤ng tr╞░ß╗¢c khi thß╗¡ c├íc API phß╗⌐c tß║íp h╞ín.
           </div>
           <div class="route-preview__actions">
-            <a class="btn btn-sm route-preview__nav" id="routePreviewNavigate" href="/health">Đi tới API này</a>
-            <button class="btn btn-sm btn-outline-light route-preview__close" id="routePreviewClose" type="button">Ẩn mô
-              tả</button>
+            <a class="btn btn-sm route-preview__nav" id="routePreviewNavigate" href="/health">─Éi tß╗¢i API n├áy</a>
+            <button class="btn btn-sm btn-outline-light route-preview__close" id="routePreviewClose" type="button">ß║¿n m├┤
+              tß║ú</button>
           </div>
         </div>
       </div>
     </section>
 
     <div class="row g-4">
-      <!-- Cột trái: Form Upload -->
+      <!-- Cß╗Öt tr├íi: Form Upload -->
       <div class="col-12 col-lg-5">
         <section class="section-card p-4 h-100">
-          <h2 class="h4 fw-bold mb-3">Khu vực Upload</h2>
+          <h2 class="h4 fw-bold mb-3">Khu vß╗▒c Upload</h2>
           <form id="translateForm" class="vstack gap-3">
             <div>
-              <label for="image" class="form-label fw-semibold">Chọn ảnh (Tối đa 10 ảnh)</label>
+              <label for="image" class="form-label fw-semibold">Chß╗ìn ß║únh (Tß╗æi ─æa 10 ß║únh)</label>
               <input class="form-control" type="file" id="image" name="images" accept="image/jpeg,image/png,image/webp"
                 multiple required />
               <div class="form-text text-muted" id="fileCountText">
-                Bạn có thể bôi đen nhiều file để tải lên cùng lúc.
+                Bß║ín c├│ thß╗â b├┤i ─æen nhiß╗üu file ─æß╗â tß║úi l├¬n c├╣ng l├║c.
               </div>
+              <!-- Preview thumbnail ß║únh chß╗ìn -->
+              <div id="selectedPreviews" class="d-flex flex-wrap gap-2 mt-2" style="display: none;"></div>
             </div>
 
             <div>
-              <label for="sourceLanguage" class="form-label fw-semibold">Ngôn ngữ đầu vào (Tùy chọn)</label>
+              <label for="sourceLanguage" class="form-label fw-semibold">Ng├┤n ngß╗» ─æß║ºu v├áo (T├╣y chß╗ìn)</label>
               <select class="form-select" id="sourceLanguage" name="source_language">
-                <option value="auto" selected>Tự động phát hiện (Khuyên dùng)</option>
-                <option value="eng">Tiếng Anh (English)</option>
-                <option value="vie">Tiếng Việt (Vietnamese)</option>
-                <option value="jpn">Tiếng Nhật (Japanese)</option>
-                <option value="kor">Tiếng Hàn (Korean)</option>
-                <option value="chi_sim">Trung giản thể (Chinese Simp)</option>
-                <option value="chi_tra">Trung phồn thể (Chinese Trad)</option>
+                <option value="auto" selected>Tß╗▒ ─æß╗Öng ph├ít hiß╗çn (Khuy├¬n d├╣ng)</option>
+                <option value="eng">Tiß║┐ng Anh (English)</option>
+                <option value="vie">Tiß║┐ng Viß╗çt (Vietnamese)</option>
+                <option value="jpn">Tiß║┐ng Nhß║¡t (Japanese)</option>
+                <option value="kor">Tiß║┐ng H├án (Korean)</option>
+                <option value="chi_sim">Trung giß║ún thß╗â (Chinese Simp)</option>
+                <option value="chi_tra">Trung phß╗ôn thß╗â (Chinese Trad)</option>
               </select>
               <div class="form-text text-muted">
-                Nếu để Auto, AI sẽ tự phân tích và chọn ngôn ngữ phù hợp nhất.
+                Nß║┐u ─æß╗â Auto, AI sß║╜ tß╗▒ ph├ón t├¡ch v├á chß╗ìn ng├┤n ngß╗» ph├╣ hß╗úp nhß║Ñt.
               </div>
             </div>
 
             <div>
-              <label for="ocrEngineMode" class="form-label fw-semibold">Chế độ OCR (Tùy chọn)</label>
+              <label for="ocrEngineMode" class="form-label fw-semibold">Chß║┐ ─æß╗Ö OCR (T├╣y chß╗ìn)</label>
               <select class="form-select" id="ocrEngineMode" name="ocr_engine_mode">
-                <option value="" selected>Tự động (Router CV quyết định)</option>
-                <option value="11">Truyện tranh (PSM 11 - Tìm các bong bóng thoại rải rác)</option>
-                <option value="3">Văn bản thuần (PSM 3 - Đọc toàn bộ trang giấy)</option>
+                <option value="" selected>Tß╗▒ ─æß╗Öng (Router CV quyß║┐t ─æß╗ïnh)</option>
+                <option value="11">Truyß╗çn tranh (PSM 11 - T├¼m c├íc bong b├│ng thoß║íi rß║úi r├íc)</option>
+                <option value="3">V─ân bß║ún thuß║ºn (PSM 3 - ─Éß╗ìc to├án bß╗Ö trang giß║Ñy)</option>
               </select>
               <div class="form-text text-muted">
-                Nên để "Tự động". Hệ thống sẽ dùng Computer Vision để tự phân biệt đâu là truyện tranh, đâu là tài liệu.
+                N├¬n ─æß╗â "Tß╗▒ ─æß╗Öng". Hß╗ç thß╗æng sß║╜ d├╣ng Computer Vision ─æß╗â tß╗▒ ph├ón biß╗çt ─æ├óu l├á truyß╗çn tranh, ─æ├óu l├á t├ái liß╗çu.
               </div>
             </div>
 
             <div>
-              <label for="targetLanguage" class="form-label fw-semibold">Ngôn ngữ đích muốn dịch</label>
+              <label for="targetLanguage" class="form-label fw-semibold">Ng├┤n ngß╗» ─æ├¡ch muß╗æn dß╗ïch</label>
               <select class="form-select" id="targetLanguage" name="target_language">
                 <option value="Vietnamese" selected>Vietnamese</option>
                 <option value="English">English</option>
@@ -499,13 +501,13 @@
             </div>
 
             <button class="btn btn-accent btn-lg mt-2" type="submit" id="translateButton">
-              Bắt đầu dịch hàng loạt
+              Bß║»t ─æß║ºu dß╗ïch h├áng loß║ít
             </button>
 
-            <!-- Progress Bar (Ẩn mặc định) -->
+            <!-- Progress Bar (ß║¿n mß║╖c ─æß╗ïnh) -->
             <div id="progressContainer" class="mt-2" style="display: none;">
               <div class="d-flex justify-content-between small mb-1">
-                <span id="progressText">Đang xử lý...</span>
+                <span id="progressText">─Éang xß╗¡ l├╜...</span>
                 <span id="progressPercent">0%</span>
               </div>
               <div class="progress" style="height: 6px; background-color: rgba(148, 163, 184, 0.2);">
@@ -519,63 +521,72 @@
         </section>
       </div>
 
-      <!-- Cột phải: Kết quả xử lý & Lịch sử -->
+      <!-- Cß╗Öt phß║úi: Kß║┐t quß║ú xß╗¡ l├╜ & Lß╗ïch sß╗¡ -->
       <div class="col-12 col-lg-7">
         <section class="section-card p-4 h-100 history-panel d-flex flex-column">
 
-          <!-- Tabs chuyển đổi giữa Kết quả hiện tại và Lịch sử -->
+          <!-- Tabs chuyß╗ân ─æß╗òi giß╗»a Kß║┐t quß║ú hiß╗çn tß║íi v├á Lß╗ïch sß╗¡ -->
           <ul class="nav nav-pills mb-3 border-bottom border-secondary pb-2" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active text-white" id="pills-result-tab" data-bs-toggle="pill"
-                data-bs-target="#pills-result" type="button" role="tab">Kết quả vừa dịch</button>
+                data-bs-target="#pills-result" type="button" role="tab">Kß║┐t quß║ú vß╗½a dß╗ïch</button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link text-white" id="pills-history-tab" data-bs-toggle="pill"
-                data-bs-target="#pills-history" type="button" role="tab" onclick="loadHistory()">Lịch sử
+                data-bs-target="#pills-history" type="button" role="tab" onclick="loadHistory()">Lß╗ïch sß╗¡
                 Database</button>
             </li>
           </ul>
 
           <div class="tab-content flex-grow-1" id="pills-tabContent">
 
-            <!-- TAB KẾT QUẢ -->
+            <!-- TAB Kß║╛T QUß║ó -->
             <div class="tab-pane fade show active h-100" id="pills-result" role="tabpanel">
               <div class="d-flex align-items-center justify-content-between mb-3">
-                <h3 class="h6 text-uppercase text-muted mb-0">Trạng thái: <span id="uploadStatus"
-                    class="text-info fw-bold">Sẵn sàng</span></h3>
-                <span class="badge badge-soft rounded-pill" id="batchSummaryBadge">Tổng: 0 ảnh</span>
+                <h3 class="h6 text-uppercase text-muted mb-0">Trß║íng th├íi: <span id="uploadStatus"
+                    class="text-info fw-bold">Sß║╡n s├áng</span></h3>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge badge-soft rounded-pill" id="batchSummaryBadge">Tß╗òng: 0 ß║únh</span>
+                  <div id="batchDownloadAllSlot"></div>
+                </div>
               </div>
 
-              <!-- Container chứa danh sách kết quả -->
+              <!-- Container chß╗⌐a danh s├ích kß║┐t quß║ú -->
               <div id="resultsContainer" class="history-scroll pe-2">
-                <div class="text-center text-muted py-5 border rounded-3"
-                  style="border-color: rgba(148, 163, 184, 0.2) !important; border-style: dashed !important;">
-                  Chưa có dữ liệu. Hãy chọn ảnh và bấm Dịch thuật.
+                <div class="text-center text-muted py-5 border rounded-3 p-4"
+                  style="border-color: rgba(56, 189, 248, 0.25) !important; border-style: dashed !important; background: rgba(15, 23, 42, 0.4);">
+                  <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">≡ƒû╝∩╕Å ≡ƒôÑ</div>
+                  <h5 class="fw-bold text-light mb-2">Khu vß╗▒c trß║ú vß╗ü ß║únh th├ánh phß║⌐m & Tß║úi vß╗ü</h5>
+                  <p class="small text-muted mb-0">
+                    Sau khi chß╗ìn ß║únh v├á bß║Ñm <span class="text-info fw-semibold">"Bß║»t ─æß║ºu dß╗ïch h├áng loß║ít"</span>, ß║únh
+                    th├ánh phß║⌐m (─æ├ú ch├¿n nß╗Öi dung dß╗ïch) sß║╜ xuß║Ñt hiß╗çn tß║íi ─æ├óy k├¿m n├║t <span
+                      class="text-success fw-semibold">"Tß║úi ß║únh vß╗ü m├íy"</span>.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <!-- TAB LỊCH SỬ -->
+            <!-- TAB Lß╗èCH Sß╗¼ -->
             <div class="tab-pane fade h-100" id="pills-history" role="tabpanel">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="badge badge-soft rounded-pill" id="historyMeta">Chưa tải dữ liệu</span>
-                <button class="btn btn-sm btn-outline-light" id="refreshHistoryBtn" onclick="loadHistory()">Làm
-                  mới</button>
+                <span class="badge badge-soft rounded-pill" id="historyMeta">Ch╞░a tß║úi dß╗» liß╗çu</span>
+                <button class="btn btn-sm btn-outline-light" id="refreshHistoryBtn" onclick="loadHistory()">L├ám
+                  mß╗¢i</button>
               </div>
 
               <div class="table-responsive history-scroll">
                 <table class="table table-borderless align-middle mb-0">
                   <thead>
                     <tr>
-                      <th>Ảnh</th>
-                      <th>Nguồn / Đích</th>
-                      <th>Dịch thuật</th>
-                      <th>Thời gian</th>
+                      <th>ß║ónh</th>
+                      <th>Nguß╗ôn / ─É├¡ch</th>
+                      <th>Dß╗ïch thuß║¡t</th>
+                      <th>Thß╗¥i gian</th>
                     </tr>
                   </thead>
                   <tbody id="historyTableBody">
                     <tr>
-                      <td colspan="4" class="text-center text-muted py-4">Bấm "Lịch sử Database" để tải.</td>
+                      <td colspan="4" class="text-center text-muted py-4">Bß║Ñm "Lß╗ïch sß╗¡ Database" ─æß╗â tß║úi.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -588,11 +599,52 @@
     </div>
   </main>
 
-  <!-- Bootstrap JS cho Tabs -->
+  <!-- Modal xem ß║únh k├¡ch th╞░ß╗¢c ─æß║ºy ─æß╗º -->
+  <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content"
+        style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); backdrop-filter: blur(16px);">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-light" id="imagePreviewModalLabel">Xem ß║únh ─æ├ú dß╗ïch</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-3">
+          <img id="modalPreviewImg" src="" alt="Full Preview"
+            style="max-width: 100%; max-height: 80vh; border-radius: 8px;" />
+        </div>
+        <div class="modal-footer border-secondary justify-content-between">
+          <span class="text-muted small" id="modalImgInfo"></span>
+          <a id="modalDownloadBtn" href="#" download="translated_image.png" class="btn btn-accent">
+            ≡ƒôÑ Tß║úi ß║únh n├áy vß╗ü m├íy
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS cho Tabs v├á Modal -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Các UI logic của Route Preview Menu
+    // Modal zoom preview helper
+    const openImageModal = (src, title, downloadName) => {
+      const modalImg = document.getElementById("modalPreviewImg");
+      const modalTitle = document.getElementById("imagePreviewModalLabel");
+      const modalDownloadBtn = document.getElementById("modalDownloadBtn");
+      const modalInfo = document.getElementById("modalImgInfo");
+
+      modalImg.src = src;
+      modalTitle.textContent = "≡ƒû╝∩╕Å " + (title || "ß║ónh ─æ├ú dß╗ïch");
+      modalDownloadBtn.href = src;
+      modalDownloadBtn.download = downloadName || "translated_image.png";
+      modalInfo.textContent = title;
+
+      const modal = new bootstrap.Modal(document.getElementById("imagePreviewModal"));
+      modal.show();
+    };
+
+    // C├íc UI logic cß╗ºa Route Preview Menu
     const routeSelect = document.getElementById("routeSelect");
     const routePreviewTitle = document.getElementById("routePreviewTitle");
     const routePreviewPath = document.getElementById("routePreviewPath");
@@ -645,7 +697,7 @@
 
       if (routePreviewNavigate) {
         routePreviewNavigate.href = routeHref;
-        routePreviewNavigate.textContent = `Đi tới ${routeTitle}`;
+        routePreviewNavigate.textContent = `─Éi tß╗¢i ${routeTitle}`;
       }
 
       setSelectedQuickNavLink(link || null);
@@ -753,7 +805,7 @@
       }
     }
 
-    // Kịch bản Form Upload & Translation
+    // Kß╗ïch bß║ún Form Upload & Translation
     const translateForm = document.getElementById("translateForm");
     const imageInput = document.getElementById("image");
     const fileCountText = document.getElementById("fileCountText");
@@ -775,21 +827,52 @@
     const historyTableBody = document.getElementById("historyTableBody");
     const historyMeta = document.getElementById("historyMeta");
 
-    // Update text số lượng file giới hạn là 10
+    const selectedPreviews = document.getElementById("selectedPreviews");
+
+    // Update text sß╗æ l╞░ß╗úng file giß╗¢i hß║ín l├á 10 & render thumbnail preview
     imageInput.addEventListener("change", (e) => {
-      const count = e.target.files.length;
+      const files = Array.from(e.target.files || []);
+      const count = files.length;
+      selectedPreviews.innerHTML = "";
+
       if (count > 10) {
-        showUploadError("Bạn chỉ được upload tối đa 10 ảnh mỗi lần.");
+        showUploadError("Bß║ín chß╗ë ─æ╞░ß╗úc upload tß╗æi ─æa 10 ß║únh mß╗ùi lß║ºn.");
         imageInput.value = "";
-        fileCountText.textContent = "Vượt quá giới hạn (Max 10)";
+        fileCountText.textContent = "V╞░ß╗út qu├í giß╗¢i hß║ín (Max 10)";
         fileCountText.style.color = "#f87171";
+        selectedPreviews.style.display = "none";
       } else if (count > 0) {
         clearUploadError();
-        fileCountText.textContent = `Đã chọn ${count} ảnh. Sẵn sàng xử lý!`;
+        fileCountText.textContent = `─É├ú chß╗ìn ${count} ß║únh. Sß║╡n s├áng xß╗¡ l├╜!`;
         fileCountText.style.color = "#22c55e";
+        selectedPreviews.style.display = "flex";
+
+        files.slice(0, 5).forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const thumb = document.createElement("div");
+            thumb.className = "position-relative rounded overflow-hidden border border-secondary";
+            thumb.style.width = "54px";
+            thumb.style.height = "54px";
+            thumb.style.background = "#020617";
+            thumb.innerHTML = `<img src="${event.target.result}" alt="${escapeHtml(file.name)}" style="width:100%;height:100%;object-fit:cover;" title="${escapeHtml(file.name)}"/>`;
+            selectedPreviews.appendChild(thumb);
+          };
+          reader.readAsDataURL(file);
+        });
+
+        if (count > 5) {
+          const moreBadge = document.createElement("div");
+          moreBadge.className = "d-flex align-items-center justify-content-center rounded bg-secondary text-light small fw-bold";
+          moreBadge.style.width = "54px";
+          moreBadge.style.height = "54px";
+          moreBadge.textContent = `+${count - 5}`;
+          selectedPreviews.appendChild(moreBadge);
+        }
       } else {
-        fileCountText.textContent = "Bạn có thể bôi đen nhiều file để tải lên cùng lúc.";
+        fileCountText.textContent = "Bß║ín c├│ thß╗â b├┤i ─æen nhiß╗üu file ─æß╗â tß║úi l├¬n c├╣ng l├║c.";
         fileCountText.style.color = "";
+        selectedPreviews.style.display = "none";
       }
     });
 
@@ -803,10 +886,10 @@
 
       if (isLoading) {
         document.getElementById('pills-result-tab').click();
-        uploadStatus.textContent = "Đang xử lý...";
+        uploadStatus.textContent = "─Éang xß╗¡ l├╜...";
         uploadStatus.className = "text-warning fw-bold";
       } else {
-        uploadStatus.textContent = "Hoàn tất";
+        uploadStatus.textContent = "Ho├án tß║Ñt";
         uploadStatus.className = "text-success fw-bold";
       }
     };
@@ -837,13 +920,13 @@
       return Number.isNaN(date.getTime()) ? value : date.toLocaleString("vi-VN");
     };
 
-    // XỬ LÝ FORM UPLOAD HÀNG LOẠT
+    // Xß╗¼ L├¥ FORM UPLOAD H├ÇNG LOß║áT
     translateForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const files = imageInput.files;
       if (!files || files.length === 0) {
-        showUploadError("Vui lòng chọn ít nhất một file ảnh.");
+        showUploadError("Vui l├▓ng chß╗ìn ├¡t nhß║Ñt mß╗Öt file ß║únh.");
         return;
       }
 
@@ -861,14 +944,14 @@
         clearUploadError();
         setUploadLoading(true);
         resultsContainer.innerHTML = "";
-        batchSummaryBadge.textContent = `Tổng: ${files.length} ảnh`;
+        batchSummaryBadge.textContent = `Tß╗òng: ${files.length} ß║únh`;
+        document.getElementById("batchDownloadAllSlot").innerHTML = "";
 
-        progressText.textContent = `Đang tải lên và chờ API phản hồi (có thể mất 1-2 phút)...`;
+        progressText.textContent = `─Éang tß║úi l├¬n v├á chß╗¥ API phß║ún hß╗ôi (c├│ thß╗â mß║Ñt 1-2 ph├║t)...`;
         progressBar.style.width = "50%";
         progressPercent.textContent = "50%";
 
-        // ✅ Đổi endpoint post sang /translate-images
-        const response = await fetch("https://api.quyetan.me/api/v1/translate-images", {
+        const response = await fetch("https://uncapped-moneywise-wages.ngrok-free.dev/api/v1/translate-images", {
           method: "POST",
           body: formData,
         });
@@ -876,7 +959,7 @@
         const payload = await response.json().catch(() => ({}));
 
         if (!response.ok || payload.status === "error") {
-          const message = payload.message || "Dịch thuật thất bại do lỗi Server hoặc Rate Limit.";
+          const message = payload.message || "Dß╗ïch thuß║¡t thß║Ñt bß║íi do lß╗ùi Server hoß║╖c Rate Limit.";
           showUploadError(message);
           resultsContainer.innerHTML = `<div class="alert alert-danger">${escapeHtml(message)}</div>`;
           return;
@@ -884,107 +967,170 @@
 
         progressBar.style.width = "100%";
         progressPercent.textContent = "100%";
-        progressText.textContent = `Hoàn thành ${payload.success_count}/${payload.total} ảnh`;
+        progressText.textContent = `Ho├án th├ánh ${payload.success_count}/${payload.total} ß║únh`;
+
+        // Th├¬m duy nhß║Ñt 1 n├║t "Tß║úi tß║Ñt cß║ú" nß║┐u c├│ nhiß╗üu ß║únh ─æ├ú dß╗ïch
+        const translatedResults = (payload.data || []).filter(r => r.status === "success" && r.data && r.data.translated_image_base64);
+        const batchSlot = document.getElementById("batchDownloadAllSlot");
+        batchSlot.innerHTML = "";
+
+        if (translatedResults.length > 1) {
+          const downloadAllBtn = document.createElement("button");
+          downloadAllBtn.className = "btn btn-sm btn-accent";
+          downloadAllBtn.innerHTML = `≡ƒôÑ Tß║úi tß║Ñt cß║ú ${translatedResults.length} ß║únh ─æ├ú dß╗ïch`;
+          downloadAllBtn.onclick = () => {
+            translatedResults.forEach((r, idx) => {
+              setTimeout(() => {
+                const a = document.createElement("a");
+                a.href = "data:image/png;base64," + r.data.translated_image_base64;
+                a.download = "translated_" + r.file_name.replace(/\.[^.]+$/, "") + ".png";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }, idx * 350);
+            });
+          };
+          batchSlot.appendChild(downloadAllBtn);
+        }
 
         if (payload.failed_count > 0) {
-          uploadStatus.textContent = `Xong (Lỗi ${payload.failed_count} ảnh)`;
+          uploadStatus.textContent = `Xong (Lß╗ùi ${payload.failed_count} ß║únh)`;
           uploadStatus.className = "text-danger fw-bold";
         }
 
         const results = payload.data || [];
         if (results.length === 0) {
-          resultsContainer.innerHTML = `<div class="alert alert-info">Không có dữ liệu trả về từ server.</div>`;
+          resultsContainer.innerHTML = `<div class="alert alert-info">Kh├┤ng c├│ dß╗» liß╗çu trß║ú vß╗ü tß╗½ server.</div>`;
           return;
         }
 
-        resultsContainer.innerHTML = results.map(res => {
-          const isError = res.status === "error" || (res.data && res.data.translated_text && res.data.translated_text.includes("[LỖI"));
+        resultsContainer.innerHTML = results.map((res, index) => {
+          const isError = res.status === "error" || (res.data && res.data.translated_text && res.data.translated_text.includes("[Lß╗ûI"));
           const headerClass = isError ? "border-danger" : "border-success";
           const badgeClass = isError ? "bg-danger" : "bg-success";
 
           if (res.status === "error") {
             return `
-                    <div class="result-card ${headerClass}">
-                        <div class="result-card-header">
-                            <span class="fw-bold text-danger">❌ ${escapeHtml(res.file_name)}</span>
-                        </div>
-                        <div class="result-card-body text-danger">
-                            ${escapeHtml(res.message)}
-                        </div>
-                    </div>
-                  `;
+              <div class="result-card ${headerClass}">
+                <div class="result-card-header">
+                  <span class="fw-bold text-danger">Γ¥î ${escapeHtml(res.file_name)}</span>
+                </div>
+                <div class="result-card-body text-danger">
+                  ${escapeHtml(res.message)}
+                </div>
+              </div>
+            `;
           }
 
           const formatLabel = res.data.comic_format ? res.data.comic_format.toUpperCase() : "AUTO";
+          const downloadFilename = `translated_${res.file_name.replace(/\.[^.]+$/, '')}.png`;
 
           return `
-                <div class="result-card ${headerClass}">
-                    <div class="result-card-header">
-                        <span class="fw-bold text-info">📄 ${escapeHtml(res.file_name)}</span>
-                        <div>
-                            <span class="badge ${badgeClass}">${escapeHtml(res.data.detected_source_language)}</span>
-                            <span class="badge bg-secondary ms-1">${escapeHtml(formatLabel)}</span>
-                        </div>
-                    </div>
-                    <div class="result-card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3 mb-md-0">
-                                <h6 class="text-muted small border-bottom border-secondary pb-1">Văn bản gốc (OCR)</h6>
-                                <pre>${escapeHtml(res.data.original_ocr_text)}</pre>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-muted small border-bottom border-secondary pb-1">Bản dịch (LLM)</h6>
-                                <pre style="color: #4ade80;">${escapeHtml(res.data.translated_text)}</pre>
-                            </div>
-                        </div>
-                        
-                        ${res.data.bubbles && res.data.bubbles.length > 0 ? `
-                        <div class="mt-3">
-                            <h6 class="text-muted small border-bottom border-secondary pb-1">Chi tiết ${res.data.bubbles.length} Bong bóng (Bubbles)</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-dark table-striped mt-2">
-                                    <thead><tr><th>Box [x,y,w,h]</th><th>Gốc</th><th>Dịch</th></tr></thead>
-                                    <tbody>
-                                        ${res.data.bubbles.map(b => `
-                                            <tr>
-                                                <td class="text-muted" style="font-size: 0.75rem;">[${b.bbox.xmin},${b.bbox.ymin},${b.bbox.xmax - b.bbox.xmin},${b.bbox.ymax - b.bbox.ymin}]</td>
-                                                <td style="font-size: 0.85rem;">${escapeHtml(b.original_text)}</td>
-                                                <td style="font-size: 0.85rem; color:#4ade80;">${escapeHtml(b.translated_text)}</td>
-                                            </tr>
-                                        `).join("")}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
+            <div class="result-card ${headerClass}">
+              <div class="result-card-header">
+                <span class="fw-bold text-info">≡ƒôä ${escapeHtml(res.file_name)}</span>
+                <div>
+                  <span class="badge ${badgeClass}">${escapeHtml(res.data.detected_source_language)}</span>
+                  <span class="badge bg-secondary ms-1">${escapeHtml(formatLabel)}</span>
                 </div>
-              `;
+              </div>
+              <div class="result-card-body">
+                ${res.data.translated_image_base64 ? `
+                <div class="p-3 mb-4 rounded-3" style="background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.3);">
+                  <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+                    <span class="fw-bold text-success" style="font-size: 1rem;">
+                      ≡ƒû╝∩╕Å ß║óNH TH├ÇNH PHß║¿M ─É├â Dß╗èCH
+                    </span>
+                    <span class="badge bg-info text-dark">PNG 0─æ Sß║╡n S├áng</span>
+                  </div>
+
+                  <div class="text-center py-2 position-relative" style="background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <img id="renderedImg_${index}"
+                         src="data:image/png;base64,${res.data.translated_image_base64}" 
+                         alt="ß║ónh ─æ├ú dß╗ïch - ${escapeHtml(res.file_name)}"
+                         class="img-fluid rounded shadow-sm"
+                         style="max-height: 480px; object-fit: contain; cursor: pointer;"
+                         onclick="openImageModal('data:image/png;base64,${res.data.translated_image_base64}', '${escapeHtml(res.file_name)}', '${downloadFilename}')"
+                         title="Click ─æß╗â ph├│ng to ß║únh" />
+                  </div>
+
+                  <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                    <a class="btn btn-accent px-4 py-2 fw-bold" 
+                       href="data:image/png;base64,${res.data.translated_image_base64}" 
+                       download="${downloadFilename}"
+                       style="text-decoration: none; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
+                      ≡ƒôÑ Tß║óI ß║óNH ─É├â Dß╗èCH Vß╗Ç M├üY (.PNG)
+                    </a>
+                    <button type="button" class="btn btn-outline-info btn-sm px-3"
+                            onclick="openImageModal('data:image/png;base64,${res.data.translated_image_base64}', '${escapeHtml(res.file_name)}', '${downloadFilename}')">
+                      ≡ƒöì Ph├│ng to
+                    </button>
+                  </div>
+                </div>
+                ` : `
+                <div class="alert alert-warning py-2 mb-3 small">
+                  ΓÜá∩╕Å Ch╞░a c├│ ß║únh render cho file n├áy. Bß║ún dß╗ïch dß║íng v─ân bß║ún ß╗ƒ b├¬n d╞░ß╗¢i:
+                </div>
+                `}
+
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <h6 class="text-muted small border-bottom border-secondary pb-1">V─ân bß║ún gß╗æc (OCR)</h6>
+                    <pre>${escapeHtml(res.data.original_ocr_text)}</pre>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-muted small border-bottom border-secondary pb-1">Bß║ún dß╗ïch (LLM)</h6>
+                    <pre style="color: #4ade80;">${escapeHtml(res.data.translated_text)}</pre>
+                  </div>
+                </div>
+                
+                ${res.data.bubbles && res.data.bubbles.length > 0 ? `
+                <div class="mt-3">
+                  <h6 class="text-muted small border-bottom border-secondary pb-1">Chi tiß║┐t ${res.data.bubbles.length} Bong b├│ng (Bubbles)</h6>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-dark table-striped mt-2">
+                      <thead><tr><th>Box [x,y,w,h]</th><th>Gß╗æc</th><th>Dß╗ïch</th></tr></thead>
+                      <tbody>
+                        ${res.data.bubbles.map(b => `
+                          <tr>
+                            <td class="text-muted" style="font-size: 0.75rem;">[${b.bbox.xmin},${b.bbox.ymin},${b.bbox.xmax - b.bbox.xmin},${b.bbox.ymax - b.bbox.ymin}]</td>
+                            <td style="font-size: 0.85rem;">${escapeHtml(b.original_text)}</td>
+                            <td style="font-size: 0.85rem; color:#4ade80;">${escapeHtml(b.translated_text)}</td>
+                          </tr>
+                        `).join("")}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
         }).join("");
 
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Lỗi kết nối đến máy chủ.";
+        const message = error instanceof Error ? error.message : "Lß╗ùi kß║┐t nß╗æi ─æß║┐n m├íy chß╗º.";
         showUploadError(message);
       } finally {
         setTimeout(() => setUploadLoading(false), 1000);
       }
     });
 
-    // TẢI LỊCH SỬ DATABASE
+    // Tß║óI Lß╗èCH Sß╗¼ DATABASE
     const loadHistory = async () => {
       try {
-        historyMeta.textContent = "Đang lấy dữ liệu...";
-        historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Đang tải...</td></tr>`;
+        historyMeta.textContent = "─Éang lß║Ñy dß╗» liß╗çu...";
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4">─Éang tß║úi...</td></tr>`;
 
-        const response = await fetch("https://api.quyetan.me/api/v1/translations?page=1&limit=20");
+        const response = await fetch("/api/v1/translations?page=1&limit=20");
         const payload = await response.json().catch(() => ({}));
 
         if (response.status === 429) {
-          throw new Error("Quá nhiều lượt truy cập. Đợi chút nhé.");
+          throw new Error("Qu├í nhiß╗üu l╞░ß╗út truy cß║¡p. ─Éß╗úi ch├║t nh├⌐.");
         }
 
         if (!response.ok || payload.status === "error") {
-          throw new Error(payload.message || "Không tải được lịch sử.");
+          throw new Error(payload.message || "Kh├┤ng tß║úi ─æ╞░ß╗úc lß╗ïch sß╗¡.");
         }
 
         let items = [];
@@ -997,13 +1143,13 @@
         }
 
         if (!items || items.length === 0) {
-          historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Chưa có bản ghi nào trong Database.</td></tr>`;
-          historyMeta.textContent = "Tổng 0 bản ghi";
+          historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Ch╞░a c├│ bß║ún ghi n├áo trong Database.</td></tr>`;
+          historyMeta.textContent = "Tß╗òng 0 bß║ún ghi";
           return;
         }
 
         historyTableBody.innerHTML = items.map(item => {
-          const imageName = item.image_name || item.imageName || "Không rõ";
+          const imageName = item.image_name || item.imageName || "Kh├┤ng r├╡";
           const sourceLang = item.source_language || item.sourceLanguage || "-";
           const targetLang = item.target_language || item.targetLanguage || "-";
           const originalText = item.original_ocr_text || item.originalOcrText || "";
@@ -1022,8 +1168,8 @@
                 <span class="badge bg-success mt-1">${escapeHtml(targetLang)}</span>
               </td>
               <td style="max-width: 300px;">
-                <div style="font-size: 0.8rem; color: #94a3b8; max-height: 40px; overflow: hidden;">Gốc: ${escapeHtml(originalText)}</div>
-                <div style="font-size: 0.85rem; color: #4ade80; max-height: 40px; overflow: hidden; margin-top: 4px;">Dịch: ${escapeHtml(translatedText)}</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; max-height: 40px; overflow: hidden;">Gß╗æc: ${escapeHtml(originalText)}</div>
+                <div style="font-size: 0.85rem; color: #4ade80; max-height: 40px; overflow: hidden; margin-top: 4px;">Dß╗ïch: ${escapeHtml(translatedText)}</div>
               </td>
               <td class="text-muted small">${createdAt ? escapeHtml(formatDateTime(createdAt)) : "-"}</td>
             </tr>
@@ -1031,15 +1177,15 @@
         }).join("");
 
         const totalRecords = payload.total ?? payload.data?.total ?? items.length;
-        historyMeta.textContent = `Tổng ${totalRecords} bản ghi`;
+        historyMeta.textContent = `Tß╗òng ${totalRecords} bß║ún ghi`;
 
       } catch (error) {
-        historyMeta.textContent = "Lỗi tải lịch sử";
+        historyMeta.textContent = "Lß╗ùi tß║úi lß╗ïch sß╗¡";
         historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-4">${escapeHtml(error.message)}</td></tr>`;
       }
     };
 
-    // Load lịch sử mặc định khi mới mở web
+    // Load lß╗ïch sß╗¡ mß║╖c ─æß╗ïnh khi mß╗¢i mß╗ƒ web
     setTimeout(loadHistory, 500);
   </script>
 </body>
