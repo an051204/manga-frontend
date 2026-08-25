@@ -1,0 +1,12 @@
+node_modules
+dist
+logs
+.env
+.DS_Store
+npm-debug.log*
+uploads/
+traineddata/
+cv-service/venv/
+cv-service/__pycache__/
+cv-service/models/
+

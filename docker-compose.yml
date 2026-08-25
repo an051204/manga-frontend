@@ -1,0 +1,91 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: apidichanh-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: apidich_anh
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: api_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  cv-service:
+    build:
+      context: ./cv-service
+      dockerfile: Dockerfile
+    container_name: apidichanh-cv
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: "1"
+      BUBBLE_CONFIDENCE: ${BUBBLE_CONFIDENCE:-0.25}
+      BUBBLE_IMAGE_SIZE: ${BUBBLE_IMAGE_SIZE:-1280}
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./cv-service:/app
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8001/health'')"',
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: apidichanh-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      cv-service:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: mysql://api_user:api_password@db:3306/apidich_anh
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      OCR_LANGUAGE: ${OCR_LANGUAGE:-eng}
+      CV_SERVICE_URL: http://cv-service:8001
+      TESSDATA_PREFIX: /app/traineddata
+    command: sh -c "npm run db:push && npm run dev"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - app_node_modules:/app/node_modules
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000/health'').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"',
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  mysql_data:
+  app_node_modules:
