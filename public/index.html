@@ -1115,16 +1115,47 @@
               }
             });
 
-            const payload = await response.json().catch(() => ({}));
+            let payload = {};
+            try {
+              const text = await response.text();
+              payload = JSON.parse(text);
+            } catch {
+              payload = {};
+            }
 
-            if (!response.ok || payload.status === "error") {
+            if (!response.ok) {
               failedCount++;
-              const errorMessage = payload.message || "Lỗi AI từ chối dịch hoặc quá tải.";
+              let errorMessage = payload?.message;
+              if (!errorMessage) {
+                if (response.status === 504) errorMessage = "Vercel Timeout (504): Quá thời gian phản hồi.";
+                else if (response.status === 502) errorMessage = "Vercel Bad Gateway (502): Mất kết nối tới máy chủ backend.";
+                else if (response.status === 429) errorMessage = "Quá nhiều request (429). Vui lòng thử lại.";
+                else errorMessage = `Lỗi máy chủ (${response.status}).`;
+              }
               appendResultToDOM({ status: "error", file_name: file.name, message: errorMessage });
-            } else if (payload.data && payload.data.length > 0) {
-              successCount++;
+            } else if (payload.status === "error") {
+              failedCount++;
+              appendResultToDOM({ status: "error", file_name: file.name, message: payload.message || "Lỗi xử lý ảnh." });
+            } else if (payload.data && Array.isArray(payload.data) && payload.data.length > 0) {
               const resultData = payload.data[0];
-              if (resultData.status === "success" && resultData.data && resultData.data.translated_image_base64) {
+              if (resultData.status === "success") {
+                successCount++;
+                if (resultData.data && resultData.data.translated_image_base64) {
+                  allTranslatedResults.push(resultData);
+                }
+                appendResultToDOM(resultData);
+              } else {
+                failedCount++;
+                appendResultToDOM({
+                  status: "error",
+                  file_name: file.name,
+                  message: resultData.message || "Không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
+                });
+              }
+            } else if (payload.data && payload.data.translated_text) {
+              successCount++;
+              const resultData = { status: "success", file_name: file.name, data: payload.data };
+              if (payload.data.translated_image_base64) {
                 allTranslatedResults.push(resultData);
               }
               appendResultToDOM(resultData);
@@ -1133,7 +1164,7 @@
               appendResultToDOM({
                 status: "error",
                 file_name: file.name,
-                message: "Không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
+                message: payload.message || "Không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
               });
             }
           } catch (err) {
