@@ -1133,11 +1133,25 @@
               failedCount++;
               const errorMessage = payload.message || `Lỗi máy chủ (${response.status}).`;
               appendResultToDOM({ status: "error", file_name: file.name, message: errorMessage });
-            } else if (payload.data && Array.isArray(payload.data) && payload.data.length > 0) {
-              const resultData = payload.data[0];
-              if (resultData.status === "success") {
+            } else if (payload.data) {
+              const rawData = Array.isArray(payload.data) ? payload.data[0] : payload.data;
+              const innerData = rawData?.data || rawData;
+
+              if (rawData?.status === "error") {
+                failedCount++;
+                appendResultToDOM({
+                  status: "error",
+                  file_name: file.name,
+                  message: rawData.message || "Không thể bóc tách chữ trong ảnh này."
+                });
+              } else if (innerData && (innerData.translated_text || innerData.original_ocr_text || innerData.translated_image_base64 || innerData.bubbles)) {
                 successCount++;
-                if (resultData.data && resultData.data.translated_image_base64) {
+                const resultData = {
+                  status: "success",
+                  file_name: rawData?.file_name || file.name,
+                  data: innerData
+                };
+                if (innerData.translated_image_base64) {
                   allTranslatedResults.push(resultData);
                 }
                 appendResultToDOM(resultData);
@@ -1146,22 +1160,15 @@
                 appendResultToDOM({
                   status: "error",
                   file_name: file.name,
-                  message: resultData.message || "Không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
+                  message: "AI và hệ thống YOLO không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
                 });
               }
-            } else if (payload.data && payload.data.translated_text) {
-              successCount++;
-              const resultData = { status: "success", file_name: file.name, data: payload.data };
-              if (payload.data.translated_image_base64) {
-                allTranslatedResults.push(resultData);
-              }
-              appendResultToDOM(resultData);
             } else {
               failedCount++;
               appendResultToDOM({
                 status: "error",
                 file_name: file.name,
-                message: payload.message || "AI và hệ thống YOLO không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
+                message: payload.message || "Định dạng dữ liệu trả về từ máy chủ không hợp lệ."
               });
             }
           } catch (err) {
