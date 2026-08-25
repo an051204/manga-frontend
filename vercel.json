@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:match*",
+      "destination": "https://uncapped-moneywise-wages.ngrok-free.dev/api/:match*"
+    },
+    {
       "source": "/",
       "destination": "/public/index.html"
     },

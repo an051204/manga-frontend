@@ -927,8 +927,7 @@
       return Number.isNaN(date.getTime()) ? value : date.toLocaleString("vi-VN");
     };
 
-    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    const API_BASE_URL = isLocalhost ? "" : "https://uncapped-moneywise-wages.ngrok-free.dev";
+    const API_BASE_URL = "";
 
     // XỬ LÝ FORM UPLOAD HÀNG LOẠT
     translateForm.addEventListener("submit", async (event) => {
@@ -961,7 +960,7 @@
         progressBar.style.width = "50%";
         progressPercent.textContent = "50%";
 
-        const response = await fetch("https://uncapped-moneywise-wages.ngrok-free.dev/api/v1/translate-images", {
+        const response = await fetch("/api/v1/translate-images", {
           method: "POST",
           body: formData,
           headers: {
@@ -1135,7 +1134,7 @@
         historyMeta.textContent = "Đang lấy dữ liệu...";
         historyTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Đang tải...</td></tr>`;
 
-        const response = await fetch("https://uncapped-moneywise-wages.ngrok-free.dev/api/v1/translations?page=1&limit=20", {
+        const response = await fetch("/api/v1/translations?page=1&limit=20", {
           method: "GET",
           headers: {
             "ngrok-skip-browser-warning": "true"
