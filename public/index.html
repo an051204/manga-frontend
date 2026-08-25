@@ -1064,7 +1064,9 @@
       batchSlot.appendChild(downloadAllBtn);
     };
 
-    // XỬ LÝ FORM UPLOAD HÀNG LOẠT (TUẦN TỰ TỪNG ẢNH TRÁNH TIMEOUT 502)
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // XỬ LÝ FORM UPLOAD HÀNG LOẠT (TUẦN TỰ TỪNG ẢNH KÈM THỜI GIAN NGHỈ TRÁNH QUÁ TẢI)
     translateForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -1087,11 +1089,10 @@
         let failedCount = 0;
         const allTranslatedResults = [];
 
-        // Xử lý lần lượt từng ảnh một (mỗi ảnh 1 request riêng biệt tránh timeout Vercel)
+        // VÒNG LẶP XỬ LÝ LẦN LƯỢT TỪNG ẢNH MỘT
         for (let i = 0; i < totalFiles; i++) {
           const file = files[i];
-          const progressMessage = `Đang xử lý ảnh ${i + 1}/${totalFiles} (${file.name})...`;
-          progressText.textContent = progressMessage;
+          progressText.textContent = `Đang xử lý ảnh ${i + 1}/${totalFiles} (${file.name})...`;
 
           const percent = Math.round((i / totalFiles) * 100);
           progressBar.style.width = `${percent}%`;
@@ -1118,7 +1119,7 @@
 
             if (!response.ok || payload.status === "error") {
               failedCount++;
-              const errorMessage = payload.message || "Lỗi khi dịch ảnh này.";
+              const errorMessage = payload.message || "Lỗi AI từ chối dịch hoặc quá tải.";
               appendResultToDOM({ status: "error", file_name: file.name, message: errorMessage });
             } else if (payload.data && payload.data.length > 0) {
               successCount++;
@@ -1129,18 +1130,28 @@
               appendResultToDOM(resultData);
             } else {
               failedCount++;
-              appendResultToDOM({ status: "error", file_name: file.name, message: "Không có dữ liệu trả về." });
+              appendResultToDOM({
+                status: "error",
+                file_name: file.name,
+                message: "Không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
+              });
             }
           } catch (err) {
             failedCount++;
-            appendResultToDOM({ status: "error", file_name: file.name, message: "Lỗi kết nối máy chủ." });
+            appendResultToDOM({ status: "error", file_name: file.name, message: "Lỗi đường truyền (Mất kết nối API)." });
           }
-        }
+
+          // --- NGHỈ 2 GIÂY ĐỂ HỒI TOKEN VÀ XẢ BĂNG THÔNG CHO ẢNH KẾ TIẾP ---
+          if (i < totalFiles - 1) {
+            progressText.textContent = `Đang nghỉ 2 giây để nhường đường truyền trước ảnh ${i + 2}...`;
+            await sleep(2000);
+          }
+        } // Hết vòng lặp
 
         // Cập nhật thanh tiến trình hoàn tất
         progressBar.style.width = "100%";
         progressPercent.textContent = "100%";
-        progressText.textContent = `Hoàn thành ${successCount}/${totalFiles} ảnh`;
+        progressText.textContent = `Hoàn thành ${successCount}/${totalFiles} ảnh.`;
 
         // Tạo nút "Tải tất cả" nếu có nhiều hơn 1 ảnh thành công
         if (allTranslatedResults.length > 1) {
@@ -1153,8 +1164,7 @@
         }
 
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Lỗi hệ thống.";
-        showUploadError(message);
+        showUploadError(error instanceof Error ? error.message : "Lỗi hệ thống.");
       } finally {
         setTimeout(() => setUploadLoading(false), 1000);
       }
