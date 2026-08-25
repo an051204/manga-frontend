@@ -1115,27 +1115,26 @@
               }
             });
 
+            // BƯỚC 1: ĐỌC DỮ LIỆU THÔ ĐỂ CHỐNG "NUỐT LỖI"
+            const textData = await response.text();
             let payload = {};
+
             try {
-              const text = await response.text();
-              payload = JSON.parse(text);
-            } catch {
-              payload = {};
+              payload = JSON.parse(textData);
+            } catch (e) {
+              console.error("Lỗi Parse JSON. Dữ liệu thực tế bị chặn:", textData);
+              if (textData.includes("ngrok") || textData.toLowerCase().includes("html") || textData.toLowerCase().includes("doctype")) {
+                throw new Error("Ngrok hoặc Vercel đã chặn luồng dữ liệu (Trả về trang HTML cảnh báo thay vì JSON).");
+              } else {
+                throw new Error(`Máy chủ trả về dữ liệu không hợp lệ (Mã HTTP: ${response.status}).`);
+              }
             }
 
-            if (!response.ok) {
+            // BƯỚC 2: PHÂN LOẠI KẾT QUẢ
+            if (!response.ok || payload.status === "error") {
               failedCount++;
-              let errorMessage = payload?.message;
-              if (!errorMessage) {
-                if (response.status === 504) errorMessage = "Vercel Timeout (504): Quá thời gian phản hồi.";
-                else if (response.status === 502) errorMessage = "Vercel Bad Gateway (502): Mất kết nối tới máy chủ backend.";
-                else if (response.status === 429) errorMessage = "Quá nhiều request (429). Vui lòng thử lại.";
-                else errorMessage = `Lỗi máy chủ (${response.status}).`;
-              }
+              const errorMessage = payload.message || `Lỗi máy chủ (${response.status}).`;
               appendResultToDOM({ status: "error", file_name: file.name, message: errorMessage });
-            } else if (payload.status === "error") {
-              failedCount++;
-              appendResultToDOM({ status: "error", file_name: file.name, message: payload.message || "Lỗi xử lý ảnh." });
             } else if (payload.data && Array.isArray(payload.data) && payload.data.length > 0) {
               const resultData = payload.data[0];
               if (resultData.status === "success") {
@@ -1164,18 +1163,19 @@
               appendResultToDOM({
                 status: "error",
                 file_name: file.name,
-                message: payload.message || "Không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
+                message: payload.message || "AI và hệ thống YOLO không phát hiện thấy chữ hoặc bong bóng thoại nào trong ảnh này."
               });
             }
           } catch (err) {
             failedCount++;
-            appendResultToDOM({ status: "error", file_name: file.name, message: "Lỗi đường truyền (Mất kết nối API)." });
+            const errText = err instanceof Error ? err.message : "Lỗi đường truyền (Mất kết nối API).";
+            appendResultToDOM({ status: "error", file_name: file.name, message: errText });
           }
 
-          // --- NGHỈ 2 GIÂY ĐỂ HỒI TOKEN VÀ XẢ BĂNG THÔNG CHO ẢNH KẾ TIẾP ---
+          // --- TĂNG THỜI GIAN NGHỈ LÊN 3 GIÂY ĐỂ VERCEL VÀ NGROK KỊP XẢ BĂNG THÔNG ---
           if (i < totalFiles - 1) {
-            progressText.textContent = `Đang nghỉ 2 giây để nhường đường truyền trước ảnh ${i + 2}...`;
-            await sleep(2000);
+            progressText.textContent = `Đang nghỉ 3 giây để nhường đường truyền cho ảnh ${i + 2}...`;
+            await sleep(3000);
           }
         } // Hết vòng lặp
 
