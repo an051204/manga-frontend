@@ -206,7 +206,11 @@ const createBubbleSvg = (
 
   if (isDocument) {
     // Căn lề trái cho văn bản tài liệu thuần
+    const totalTextHeight = lines.length * lineHeight;
+    const svgH = Math.max(bboxH, Math.ceil(totalTextHeight + fontSize * 0.8));
     const padLeft = Math.max(3, Math.min(8, bboxW * 0.04));
+    const startY = Math.max(fontSize, (svgH - totalTextHeight) / 2 + fontSize * 0.85);
+
     const textElements = lines
       .map(
         (line, idx) =>
@@ -214,7 +218,7 @@ const createBubbleSvg = (
       )
       .join("\n");
 
-    const svg = `<svg width="${bboxW}" height="${bboxH}" xmlns="http://www.w3.org/2000/svg">
+    const svg = `<svg width="${bboxW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="#ffffff" rx="2"/>
       ${textElements}
     </svg>`;
@@ -230,12 +234,97 @@ const createBubbleSvg = (
     )
     .join("\n");
 
+  // Nền trắng che chữ gốc:
+  // Nếu bong bóng hình tròn/oval (tỷ lệ w/h từ 0.55 đến 1.8): dùng ellipse với bán kính ~44% để nằm gọn bên trong viền đen.
+  // Nếu bong bóng chữ nhật: dùng rect bo tròn với độ đệm nhỏ để không che mất viền.
+  const ratio = bboxW / bboxH;
+  const isOval = ratio >= 0.55 && ratio <= 1.8;
+  const bgElement = isOval
+    ? `<ellipse cx="${centerX}" cy="${bboxH / 2}" rx="${bboxW * 0.44}" ry="${bboxH * 0.44}" fill="#ffffff"/>`
+    : `<rect x="${Math.max(2, bboxW * 0.03)}" y="${Math.max(2, bboxH * 0.03)}" width="${bboxW * 0.94}" height="${bboxH * 0.94}" rx="${Math.min(bboxW, bboxH) * 0.15}" fill="#ffffff"/>`;
+
   const svg = `<svg width="${bboxW}" height="${bboxH}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100%" height="100%" fill="#ffffff" rx="4"/>
+    ${bgElement}
     ${textElements}
   </svg>`;
 
   return Buffer.from(svg);
+};
+
+/**
+ * Gộp các document block gần nhau thành khối lớn hơn.
+ *
+ * Với tài liệu dày đặc (bài thi, giáo trình...), Tesseract phát hiện từng cụm từ/dòng chữ
+ * thành các block rất nhỏ. Nếu render từng block sẽ tạo ra hàng chục miếng trắng bé xíu
+ * + bản dịch tí hon → không phủ hết chữ gốc, chữ dịch bị vụn vặt.
+ *
+ * Hàm này gộp các block CÓ TƯƠNG QUAN VỊ TRÍ (gần nhau theo chiều dọc và trùng nhau
+ * theo chiều ngang) thành 1 block lớn duy nhất, rồi nối bản dịch của chúng lại.
+ */
+const mergeDocumentBlocks = (blocks: BubbleResult[]): BubbleResult[] => {
+  if (blocks.length <= 1) return blocks;
+
+  // Sao chép và sắp xếp theo vị trí đọc (trên → dưới, trái → phải)
+  const items: (BubbleResult | null)[] = [...blocks]
+    .sort((a, b) => a.bbox.ymin - b.bbox.ymin || a.bbox.xmin - b.bbox.xmin)
+    .map((b) => ({
+      ...b,
+      bbox: { ...b.bbox },
+    }));
+
+  let merged = true;
+
+  // Lặp cho đến khi không còn cặp nào gộp được
+  while (merged) {
+    merged = false;
+
+    for (let i = 0; i < items.length; i++) {
+      const a = items[i];
+      if (!a) continue;
+
+      for (let j = i + 1; j < items.length; j++) {
+        const b = items[j];
+        if (!b) continue;
+
+        // Khoảng cách dọc giữa đáy block A và đỉnh block B
+        const verticalGap = b.bbox.ymin - a.bbox.ymax;
+
+        // Nếu block B nằm quá xa phía dưới → không cần kiểm tra tiếp (danh sách đã sort)
+        if (verticalGap > 25) break;
+
+        // Kiểm tra trùng lắp ngang (hai block phải có phần giao nhau theo trục X)
+        const overlapX =
+          Math.min(a.bbox.xmax, b.bbox.xmax) -
+          Math.max(a.bbox.xmin, b.bbox.xmin);
+
+        if (verticalGap <= 25 && overlapX > 0) {
+          // Gộp: mở rộng bbox của A để bao trùm B
+          a.bbox.xmin = Math.min(a.bbox.xmin, b.bbox.xmin);
+          a.bbox.ymin = Math.min(a.bbox.ymin, b.bbox.ymin);
+          a.bbox.xmax = Math.max(a.bbox.xmax, b.bbox.xmax);
+          a.bbox.ymax = Math.max(a.bbox.ymax, b.bbox.ymax);
+
+          // Nối bản dịch
+          a.translated_text = [a.translated_text, b.translated_text]
+            .filter((t) => t?.trim())
+            .join("\n");
+          a.original_text = [a.original_text, b.original_text]
+            .filter((t) => t?.trim())
+            .join("\n");
+
+          // Lấy confidence trung bình
+          if (a.confidence != null && b.confidence != null) {
+            a.confidence = (a.confidence + b.confidence) / 2;
+          }
+
+          items[j] = null; // Đánh dấu block B đã bị gộp
+          merged = true;
+        }
+      }
+    }
+  }
+
+  return items.filter((item): item is BubbleResult => item !== null);
 };
 
 /**
@@ -260,8 +349,37 @@ export const renderTranslatedImage = async (
   const isDoc = Boolean(isDocumentMode || typesetting?.comic_format === "document");
 
   try {
+    let renderBubbles = bubbles;
+
+    if (isDoc) {
+      // ✅ Bước 1: Gộp các block nhỏ gần nhau thành block lớn (tránh vụn vặt)
+      const beforeCount = renderBubbles.length;
+      renderBubbles = mergeDocumentBlocks(renderBubbles);
+      if (renderBubbles.length < beforeCount) {
+        logger.info(
+          `[IMAGE-RENDERER] Đã gộp ${beforeCount} document blocks → ${renderBubbles.length} merged blocks.`,
+        );
+      }
+
+      // ✅ Bước 2: Mở rộng bbox thêm padding để nền trắng phủ kín chữ gốc
+      const meta = await sharp(imageBuffer).metadata();
+      const imgW = meta.width || 10000;
+      const imgH = meta.height || 10000;
+      const DOC_PAD = 8;
+
+      renderBubbles = renderBubbles.map((b) => ({
+        ...b,
+        bbox: {
+          xmin: Math.max(0, b.bbox.xmin - DOC_PAD),
+          ymin: Math.max(0, b.bbox.ymin - DOC_PAD),
+          xmax: Math.min(imgW, b.bbox.xmax + DOC_PAD),
+          ymax: Math.min(imgH, b.bbox.ymax + DOC_PAD),
+        },
+      }));
+    }
+
     // Tạo danh sách composite overlays
-    const composites: sharp.OverlayOptions[] = bubbles
+    const composites: sharp.OverlayOptions[] = renderBubbles
       .filter((b) => b.translated_text && b.translated_text.trim())
       .map((bubble) => {
         const svgBuffer = createBubbleSvg(bubble, isVertical, isDoc);

@@ -131,14 +131,17 @@ export const translateImageService = async (
           const imgArea = imgW * imgH;
           const totalBubbleArea = bubbles.reduce((sum, b) => sum + (b.w * b.h), 0);
 
-          const hasGiantBubble = bubbles.some(b => (b.w * b.h) > imgArea * 0.35);
-          const hasTooManyBubbles = bubbles.length >= 50;
-          const wideBubblesCount = bubbles.filter(b => b.w / Math.max(1, b.h) > 4.0).length;
-          const isTextLines = bubbles.length > 3 && (wideBubblesCount / bubbles.length) >= 0.8;
-          const isSparseTestImage = bubbles.length <= 3 && (totalBubbleArea / imgArea) < 0.05;
-          const isSolitaryTextBlock = bubbles.length <= 3 && (totalBubbleArea / imgArea) > 0.15;
+          // Chỉ chuyển Document Mode khi thực sự có đặc trưng tài liệu:
+          // 1. Một bong bóng khổng lồ chiếm hơn nửa trang (>50%)
+          // 2. Quá nhiều bong bóng (>45 bóng - văn bản dày đặc)
+          // 3. Đa số bong bóng là dòng chữ siêu dẹt (w / h > 4.5)
+          // 4. Tổng diện tích bong bóng chiếm hơn 65% trang
+          const hasGiantBubble = bubbles.some(b => (b.w * b.h) > imgArea * 0.50);
+          const hasTooManyBubbles = bubbles.length >= 45;
+          const wideBubblesCount = bubbles.filter(b => b.w / Math.max(1, b.h) > 4.5).length;
+          const isTextLines = bubbles.length > 4 && (wideBubblesCount / bubbles.length) >= 0.75;
 
-          if (totalBubbleArea > imgArea * 0.50 || hasGiantBubble || hasTooManyBubbles || isSparseTestImage || isTextLines || isSolitaryTextBlock) {
+          if (totalBubbleArea > imgArea * 0.65 || hasGiantBubble || hasTooManyBubbles || isTextLines) {
             logger.warn(`[ROUTER] Nhận diện đặc trưng Tài Liệu Thuần! Chuyển sang Document Mode.`);
             bubbles = [];
           }
@@ -292,6 +295,16 @@ export const translateImageService = async (
 
     if (isMangaMode) {
       parsed.data.typesetting_metadata = resolveTypesettingMetadata(effectiveSourceLanguage);
+
+      // ✅ Nếu ngôn ngữ đích KHÔNG phải CJK (VD: Việt, Anh, Hàn...), ép chữ ngang.
+      // Chữ Latin/Hangul viết dọc (vertical-rl) sẽ bị vỡ và không đọc được.
+      // Thứ tự đọc trang (RTL/LTR) vẫn giữ nguyên — chỉ đổi hướng chữ BÊN TRONG bubble.
+      const targetLangCode = normalizeTargetLanguageCode(targetLanguage);
+      const isTargetCjk = ["ja", "zh-CN", "zh-TW"].includes(targetLangCode);
+      if (!isTargetCjk && parsed.data.typesetting_metadata.direction === "vertical-rl") {
+        parsed.data.typesetting_metadata.direction = "horizontal-tb";
+        logger.info(`[TYPESETTING] Ngôn ngữ đích "${targetLanguage}" không phải CJK → ép chữ ngang (horizontal-tb).`);
+      }
     } else {
       parsed.data.typesetting_metadata = {
         direction: "horizontal-tb",

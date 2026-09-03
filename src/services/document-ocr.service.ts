@@ -20,11 +20,46 @@ const hasOcrLanguageData = (language: string): boolean => {
 };
 
 /**
+ * Trích xuất text từ lines bên trong 1 paragraph hoặc block khi `.text` ở cấp trên bị trống.
+ * Tesseract đôi khi nhóm tiêu đề/heading thành lines nhưng không gán `.text` ở paragraph.
+ */
+const collectTextFromLines = (node: any, isCjk: boolean): string => {
+    if (!node || !node.lines || !Array.isArray(node.lines)) return "";
+    const parts: string[] = [];
+    for (const line of node.lines) {
+        let lineText = (line.text || "").trim();
+        if (isCjk) lineText = cleanCjkOcrText(lineText);
+        lineText = lineText.replace(/[ \t]+/g, " ").trim();
+        if (lineText) parts.push(lineText);
+    }
+    return parts.join(" ").trim();
+};
+
+/**
+ * Tính bounding box bao trùm toàn bộ lines bên trong 1 node (paragraph/block).
+ */
+const computeBboxFromLines = (node: any): { x0: number; y0: number; x1: number; y1: number } | null => {
+    if (!node || !node.lines || !Array.isArray(node.lines) || node.lines.length === 0) return null;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const line of node.lines) {
+        if (!line.bbox) continue;
+        x0 = Math.min(x0, line.bbox.x0 || 0);
+        y0 = Math.min(y0, line.bbox.y0 || 0);
+        x1 = Math.max(x1, line.bbox.x1 || 0);
+        y1 = Math.max(y1, line.bbox.y1 || 0);
+    }
+    return x0 < Infinity ? { x0, y0, x1, y1 } : null;
+};
+
+/**
  * Trích xuất danh sách các khối văn bản/đoạn văn kèm bounding box từ Tesseract result.
+ * ✅ Cải tiến: Khai thác cả cấp lines khi paragraph.text bị trống để không sót tiêu đề/heading.
+ * ✅ Hỗ trợ quy đổi tọa độ ngược lại theo tỷ lệ `scale` khi ảnh được upscale trước đó.
  */
 const extractBlocksFromResult = (
     data: any,
-    lang: string
+    lang: string,
+    scale: number = 1,
 ): DocumentBlock[] => {
     if (!data || !data.blocks || !Array.isArray(data.blocks)) {
         return [];
@@ -33,41 +68,93 @@ const extractBlocksFromResult = (
     const blocks: DocumentBlock[] = [];
     const isCjk = lang.includes("jpn") || lang.includes("chi");
 
+    /**
+     * Thêm 1 khối vào danh sách nếu đạt tiêu chí tối thiểu (kích thước, có ký tự thực).
+     */
+    const tryPushBlock = (text: string, bbox: any, fallbackConfidence: number): boolean => {
+        if (!bbox) return false;
+
+        const rawXmin = bbox.x0 ?? bbox.xmin ?? 0;
+        const rawYmin = bbox.y0 ?? bbox.ymin ?? 0;
+        const rawXmax = bbox.x1 ?? bbox.xmax ?? (rawXmin + 1);
+        const rawYmax = bbox.y1 ?? bbox.ymax ?? (rawYmin + 1);
+
+        const xmin = Math.round(Math.max(0, rawXmin) / scale);
+        const ymin = Math.round(Math.max(0, rawYmin) / scale);
+        const xmax = Math.round(Math.max(rawXmin + 1, rawXmax) / scale);
+        const ymax = Math.round(Math.max(rawYmin + 1, rawYmax) / scale);
+
+        const width = xmax - xmin;
+        const height = ymax - ymin;
+
+        const hasLetters = /[\p{L}\p{N}]/u.test(text);
+        if (width >= 8 && height >= 8 && text.length > 0 && hasLetters) {
+            blocks.push({
+                bbox: {
+                    xmin,
+                    ymin,
+                    xmax,
+                    ymax,
+                },
+                text,
+                confidence: fallbackConfidence,
+            });
+            return true;
+        }
+        return false;
+    };
+
     for (const block of data.blocks) {
         if (!block || !block.bbox) continue;
+        const blockConf = (block.confidence || data.confidence || 0) / 100;
 
         // Nếu block có paragraphs con, ưu tiên lấy theo từng paragraph để chia khối chính xác
         const paragraphs = block.paragraphs && Array.isArray(block.paragraphs) && block.paragraphs.length > 0
             ? block.paragraphs
-            : [block];
+            : null;
 
-        for (const p of paragraphs) {
-            if (!p || !p.bbox) continue;
+        if (paragraphs) {
+            for (const p of paragraphs) {
+                if (!p || !p.bbox) continue;
 
-            let text = (p.text || "").trim();
-            if (isCjk) {
-                text = cleanCjkOcrText(text);
+                let text = (p.text || "").trim();
+                if (isCjk) text = cleanCjkOcrText(text);
+                text = text.replace(/[ \t]+/g, " ").trim();
+
+                const conf = (p.confidence || block.confidence || data.confidence || 0) / 100;
+
+                // ✅ Nếu paragraph.text trống nhưng có lines bên trong → thu thập text từ lines
+                if (!text) {
+                    text = collectTextFromLines(p, isCjk);
+                }
+
+                // ✅ Nếu text vẫn trống → bỏ qua paragraph này
+                if (!text) continue;
+
+                // ✅ Nếu paragraph.bbox thiếu kích thước hợp lệ → tính bbox từ lines
+                let useBbox = p.bbox;
+                const pWidth = (useBbox.x1 || 0) - (useBbox.x0 || 0);
+                const pHeight = (useBbox.y1 || 0) - (useBbox.y0 || 0);
+                if (pWidth < 8 || pHeight < 8) {
+                    const linesBbox = computeBboxFromLines(p);
+                    if (linesBbox) useBbox = linesBbox;
+                }
+
+                tryPushBlock(text, useBbox, conf);
             }
-
-            // Loại bỏ khoảng trắng thừa
+        } else {
+            // Block không có paragraphs → thử trích xuất trực tiếp từ block
+            let text = (block.text || "").trim();
+            if (isCjk) text = cleanCjkOcrText(text);
             text = text.replace(/[ \t]+/g, " ").trim();
 
-            const width = (p.bbox.x1 || 0) - (p.bbox.x0 || 0);
-            const height = (p.bbox.y1 || 0) - (p.bbox.y0 || 0);
+            // ✅ Nếu block.text trống → khai thác lines bên trong block
+            if (!text) {
+                text = collectTextFromLines(block, isCjk);
+            }
 
-            // Chỉ lấy block có kích thước tối thiểu và có chứa ký tự chữ/số thực tế
-            const hasLetters = /[\p{L}\p{N}]/u.test(text);
-            if (width >= 8 && height >= 8 && text.length > 0 && hasLetters) {
-                blocks.push({
-                    bbox: {
-                        xmin: Math.max(0, p.bbox.x0),
-                        ymin: Math.max(0, p.bbox.y0),
-                        xmax: Math.max(p.bbox.x0 + 1, p.bbox.x1),
-                        ymax: Math.max(p.bbox.y0 + 1, p.bbox.y1),
-                    },
-                    text,
-                    confidence: (p.confidence || block.confidence || data.confidence || 0) / 100,
-                });
+            if (text) {
+                tryPushBlock(text, block.bbox, blockConf);
             }
         }
     }
@@ -88,7 +175,28 @@ export const processDocumentOcr = async (
 ): Promise<{ text: string; language: string; confidence: number; blocks: DocumentBlock[] }> => {
     logger.info("[DOCUMENT-OCR] Bắt đầu quét văn bản thuần toàn trang...");
 
-    const processedImage = await sharp(imageBuffer).grayscale().normalize().toBuffer();
+    const meta = await sharp(imageBuffer).metadata();
+    const origW = meta.width || 1;
+    const origH = meta.height || 1;
+
+    // Tesseract cần ký tự cao ít nhất ~30px để nhận diện chính xác các nét phức tạp (Hàn, Nhật, Trung, v.v.).
+    // Với ảnh tài liệu có độ phân giải thấp (width < 1400px hoặc height < 900px), upscale lên bằng Lanczos3.
+    let scale = 1;
+    if (origW < 1400 || origH < 900) {
+        scale = Math.min(3, Math.max(2, Math.round(1800 / Math.max(origW, origH))));
+    }
+
+    let processedImage: Buffer;
+    if (scale > 1) {
+        processedImage = await sharp(imageBuffer)
+            .resize(Math.round(origW * scale), Math.round(origH * scale), { kernel: sharp.kernel.lanczos3 })
+            .grayscale()
+            .normalize()
+            .toBuffer();
+        logger.info(`[DOCUMENT-OCR] Ảnh tài liệu độ phân giải nhỏ (${origW}x${origH}), đã upscale ${scale}x (${Math.round(origW * scale)}x${Math.round(origH * scale)}) để Tesseract nhận diện chuẩn xác.`);
+    } else {
+        processedImage = await sharp(imageBuffer).grayscale().normalize().toBuffer();
+    }
 
     if (manualLanguage !== "auto" && manualLanguage !== "") {
         let worker: Tesseract.Worker | null = null;
@@ -98,7 +206,7 @@ export const processDocumentOcr = async (
             const result = await (worker as any).recognize(processedImage, {}, { blocks: true });
             let text = result.data.text.trim();
             if (manualLanguage.includes("jpn") || manualLanguage.includes("chi")) text = cleanCjkOcrText(text);
-            const blocks = extractBlocksFromResult(result.data, manualLanguage);
+            const blocks = extractBlocksFromResult(result.data, manualLanguage, scale);
             return {
                 text,
                 language: manualLanguage,
@@ -156,7 +264,7 @@ export const processDocumentOcr = async (
                 bestLang = lang;
                 bestText = text;
                 bestConf = conf;
-                bestBlocks = extractBlocksFromResult(result.data, lang);
+                bestBlocks = extractBlocksFromResult(result.data, lang, scale);
             }
         } finally { if (worker) await worker.terminate(); }
     }

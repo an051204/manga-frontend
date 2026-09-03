@@ -21,28 +21,66 @@ class SpeechBubbleDetector:
 
     def _is_document_image(self, image: np.ndarray, bubbles: List[Dict[str, int]]) -> bool:
         """
-        Lưới lọc Hình học: Phân biệt Văn bản thuần và Truyện tranh cực kỳ an toàn
-        Bỏ tính toán màu nền để không nhận diện nhầm Manga đen trắng.
+        Lưới lọc Hình học & Cấu trúc Văn bản:
+        Phân biệt chính xác giữa Tài liệu văn bản (Ghi chú, Sách, Đề thi) và Truyện tranh.
         """
         if not bubbles:
             return True
             
-        img_area = image.shape[0] * image.shape[1]
+        h, w = image.shape[:2]
+        img_area = h * w
         
-        # Luật 1: Bong bóng khổng lồ (Có bong bóng chiếm > 35% diện tích) 
-        # -> Manga KHÔNG BAO GIỜ có bong bóng thoại to bằng nửa trang giấy. 
-        # Đây chắc chắn là 1 đoạn văn (Paragraph) bị YOLO nhận diện nhầm.
-        if any(b["area"] > img_area * 0.35 for b in bubbles):
-            logger.warning("[CV-FILTER] Có 1 bong bóng chiếm >35% diện tích ảnh. -> VĂN BẢN THUẦN!")
+        # Luật 1: Bong bóng khổng lồ (chiếm >28% diện tích trang)
+        # Truyện tranh hiếm khi có 1 bong bóng chiếm gần 1/3 trang giấy. Đây là cả một đoạn văn.
+        if any(b["area"] > img_area * 0.28 for b in bubbles):
+            logger.warning("[CV-FILTER] Phát hiện bong bóng chiếm >28% diện tích ảnh -> VĂN BẢN THUẦN!")
             return True
             
-        # Luật 2: Đa số bong bóng có hình dáng siêu dẹt (Chiều rộng > 4 lần chiều cao)
-        # -> Bong bóng truyện tranh thường có hình oval/tròn/chữ nhật. 
-        # Nếu 75% bong bóng đều dài sọc, đó chắc chắn là từng dòng chữ của tài liệu.
+        # Luật 2: Đa số bong bóng có hình dáng siêu dẹt (dòng chữ)
         wide_bubbles_count = sum(1 for b in bubbles if b["w"] / max(1, b["h"]) > 4.0)
-        if len(bubbles) > 2 and (wide_bubbles_count / len(bubbles)) > 0.75:
-            logger.warning("[CV-FILTER] Hơn 75% bong bóng có hình dạng siêu dẹt (dòng chữ). -> VĂN BẢN THUẦN!")
+        if len(bubbles) > 2 and (wide_bubbles_count / len(bubbles)) > 0.70:
+            logger.warning("[CV-FILTER] Hơn 70% bong bóng có hình dạng siêu dẹt (dòng chữ) -> VĂN BẢN THUẦN!")
             return True
+
+        # Phân tích cấu trúc dòng chữ bằng hình thái học (Morphology)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 2))
+        connected = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        contours, _ = cv2.findContours(connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Luật 3: Dòng chữ cắt ngang qua mép bong bóng (Text crossing bubble boundary)
+        # Trong truyện tranh, chữ LUÔN nằm trọn bên trong bong bóng.
+        # Trong tài liệu, khi YOLO nhận nhầm 1 khối ở giữa trang, các dòng chữ của đoạn văn
+        # sẽ đâm xuyên qua đường biên trái/phải của "bong bóng".
+        for b in bubbles:
+            bx1, by1 = b["x"], b["y"]
+            bx2, by2 = bx1 + b["w"], by1 + b["h"]
+            crossing_count = 0
+
+            for c in contours:
+                cx, cy, cw, ch = cv2.boundingRect(c)
+                if cw > 40 and 6 < ch < 60 and (cw / max(1, ch)) > 2.0:
+                    crosses_left = (cx < bx1 and cx + cw > bx1 + 25 and cy + ch > by1 and cy < by2)
+                    crosses_right = (cx < bx2 - 25 and cx + cw > bx2 and cy + ch > by1 and cy < by2)
+                    if crosses_left or crosses_right:
+                        crossing_count += 1
+
+            if crossing_count >= 2:
+                logger.warning(f"[CV-FILTER] Có {crossing_count} dòng chữ cắt ngang biên giới bong bóng -> VĂN BẢN THUẦN!")
+                return True
+
+        # Luật 4: Trang tài liệu dày đặc dòng chữ (≥8 dòng chữ trải dài >60% chiều cao trang)
+        text_lines = [
+            c for c in contours 
+            if cv2.boundingRect(c)[2] > 60 and 6 < cv2.boundingRect(c)[3] < 60 and (cv2.boundingRect(c)[2] / max(1, cv2.boundingRect(c)[3])) > 2.5
+        ]
+        if len(text_lines) >= 8:
+            y_min = min(cv2.boundingRect(c)[1] for c in text_lines)
+            y_max = max(cv2.boundingRect(c)[1] + cv2.boundingRect(c)[3] for c in text_lines)
+            if (y_max - y_min) > h * 0.60:
+                logger.warning(f"[CV-FILTER] Trang có {len(text_lines)} dòng văn bản trải dài {(y_max-y_min)/h*100:.1f}% chiều cao trang -> VĂN BẢN THUẦN!")
+                return True
 
         return False
 
@@ -132,12 +170,22 @@ class SpeechBubbleDetector:
         candidates.sort(key=lambda item: item["confidence"], reverse=True)
         kept = []
         for candidate in candidates:
-            if all(self._iou(candidate, existing) < 0.55 for existing in kept):
+            duplicate_idx = -1
+            for idx, existing in enumerate(kept):
+                if self._is_duplicate(candidate, existing):
+                    duplicate_idx = idx
+                    break
+
+            if duplicate_idx == -1:
                 kept.append(candidate)
+            else:
+                # Nếu candidate bao trùm lớn hơn hẳn existing (>30% diện tích) -> lấy box lớn hơn đầy đủ
+                if candidate["w"] * candidate["h"] > kept[duplicate_idx]["w"] * kept[duplicate_idx]["h"] * 1.3:
+                    kept[duplicate_idx] = candidate
         return kept
 
     @staticmethod
-    def _iou(left, right):
+    def _is_duplicate(left, right):
         left_x2 = left["x"] + left["w"]
         left_y2 = left["y"] + left["h"]
         right_x2 = right["x"] + right["w"]
@@ -146,5 +194,14 @@ class SpeechBubbleDetector:
         intersection_width = max(0, min(left_x2, right_x2) - max(left["x"], right["x"]))
         intersection_height = max(0, min(left_y2, right_y2) - max(left["y"], right["y"]))
         intersection = intersection_width * intersection_height
-        union = left["w"] * left["h"] + right["w"] * right["h"] - intersection
-        return intersection / union if union else 0.0
+        if intersection <= 0:
+            return False
+
+        area_left = left["w"] * left["h"]
+        area_right = right["w"] * right["h"]
+        union = area_left + area_right - intersection
+        iou = intersection / union if union else 0.0
+        iomin = intersection / min(area_left, area_right)
+
+        # Trùng nếu IoU >= 0.40 hoặc box nhỏ nằm lọt >= 60% bên trong box lớn
+        return iou >= 0.40 or iomin >= 0.60

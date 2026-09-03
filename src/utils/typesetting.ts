@@ -110,7 +110,7 @@ Trong trường "translated_text", trả về bản dịch từng bong bóng THE
 
 /**
  * Parse bản dịch từng bubble từ translated_text có đánh dấu [BUBBLE_N].
- * Fallback: nếu không parse được marker nào, trả về full translated_text cho mỗi bubble.
+ * Sử dụng Regex để tìm tất cả các vị trí marker tuần tự, tránh lỗi khi LLM nhảy cóc marker.
  */
 export const parseBubbleTranslations = (
   translatedText: string,
@@ -118,20 +118,28 @@ export const parseBubbleTranslations = (
 ): string[] => {
   const results: string[] = new Array(count).fill("");
 
-  for (let i = 0; i < count; i++) {
-    const marker = `[BUBBLE_${i}]`;
-    const startIdx = translatedText.indexOf(marker);
-    if (startIdx === -1) continue;
+  const markerRegex = /\[BUBBLE_(\d+)\]/gi;
+  const matches: { markerIndex: number; endPos: number; startPos: number }[] = [];
 
-    const textStart = startIdx + marker.length;
-    const nextMarker = i < count - 1 ? `[BUBBLE_${i + 1}]` : null;
-    const endIdx = nextMarker
-      ? translatedText.indexOf(nextMarker)
-      : translatedText.length;
+  let match: RegExpExecArray | null;
+  while ((match = markerRegex.exec(translatedText)) !== null) {
+    matches.push({
+      markerIndex: parseInt(match[1], 10),
+      startPos: match.index,
+      endPos: match.index + match[0].length,
+    });
+  }
 
-    results[i] = translatedText
-      .substring(textStart, endIdx !== -1 ? endIdx : undefined)
-      .trim();
+  if (matches.length > 0) {
+    for (let i = 0; i < matches.length; i++) {
+      const current = matches[i];
+      const nextStart = i + 1 < matches.length ? matches[i + 1].startPos : translatedText.length;
+      const text = translatedText.substring(current.endPos, nextStart).trim();
+
+      if (current.markerIndex >= 0 && current.markerIndex < count) {
+        results[current.markerIndex] = text;
+      }
+    }
   }
 
   // Fallback: nếu không parse được marker nào, dùng full text cho tất cả bubbles
