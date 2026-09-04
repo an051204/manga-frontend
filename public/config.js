@@ -1,1 +1,1 @@
-const API_BASE_URL = "https://traffic-untitled-ted-kingdom.trycloudflare.com";
+const API_BASE_URL = "https://valued-rush-delete-alternative.trycloudflare.com";
